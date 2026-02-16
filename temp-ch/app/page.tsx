@@ -1,9 +1,8 @@
-import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="text-red-700">
-      Penis
-    </div>
+    <header className="w-full flex items-center justify-around">
+      <div className=""> Temperature Checker</div>
+    </header>
   );
 }
