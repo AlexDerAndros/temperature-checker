@@ -3,8 +3,11 @@
 
 @theme inline {
     /*Farbpalette*/
-    --color-container: #f2f2f2;
-    --color-container-hover: #e2e2e2;
+    --color-bgDark: #0D1717;
+    --color-container:   #EEF1F1 ;
+    --color-containerHover: #e2e2e2;
+    --color-containerDark:  #131F1F;
+    --color-containerDarkHover: #1a2a2a;
     --color-warm: #f54d0b;
     --color-cold: #3B82F6;
     --color-normal: #10B981;
@@ -22,8 +25,9 @@
 
 body {
     font-family: var(--font-inter), sans-serif;
-    background-color: white;
 }
+
+
 h1 { font-size: 2rem; }
 h2 { font-size: 1.5rem; }
 h3 { font-size: 1.25rem; }
