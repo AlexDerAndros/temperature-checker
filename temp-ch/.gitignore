@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# database config
+app/config
+
 # next.js
 /.next/
 /out/

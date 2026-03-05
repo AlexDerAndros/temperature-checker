@@ -1,11 +1,18 @@
 "use client";
 import "./globals.css";
 import { useEffect, useState } from "react";
+// Icons
 import {MapPin, Moon, SunMoon} from 'lucide-react';
 import { welcomeText } from "./texte";
+// GSAP
 import { gsap } from "gsap/gsap-core";
+
+// Charts
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
-import { time } from "console";
+
+// Database and Authentification
+import {db} from './config/firebase';
+import { addDoc, collection } from "firebase/firestore";
 
 export default function Home() {
 
@@ -18,9 +25,6 @@ export default function Home() {
   const dark = { bg:"bg-bgDark",  color:"text-white" };
   const light = {bg:"bg-white", color:"text-primary"};
   
-  
-  
- 
   const transition = "transition-alternate duration-300";
   const padding = "px-1 md:px-30 lg:px-60";
   const hover = `hover:scale-[1.02] hover:shadow-md active:scale-[1.02] md:active:scale-[1.01] active:shadow-md ${containerHover} cursor-pointer`;
@@ -41,6 +45,16 @@ export default function Home() {
       document.body.classList.add(light.bg, light.color);
     }
   }
+
+  const addClient = async() => {
+    try {
+      await addDoc(collection(db, "Client"), {
+        text: 'HI'
+      });
+    }catch(e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
      const checkLightDarkMode = () => {
@@ -118,7 +132,7 @@ export default function Home() {
           </div>
       </div>
     </section>
-     <section className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
+     <section onClick={addClient} className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Aktive Sensoren </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
         <span>0</span> 
