@@ -11,7 +11,7 @@ import { gsap } from "gsap/gsap-core";
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
 
 // Database and Authentification
-import {db} from './config/firebase';
+import {db} from './firebase';
 import { addDoc, collection } from "firebase/firestore";
 
 export default function Home() {
