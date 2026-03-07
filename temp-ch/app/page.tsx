@@ -83,7 +83,7 @@ export default function Home() {
   useEffect(() => {
     const get = async() => {
       const data = await getData();
-      console.log(data?.hallo)
+      console.log(data?.id)
     }
     get();
     
