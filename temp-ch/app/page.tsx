@@ -11,6 +11,7 @@ import { gsap } from "gsap/gsap-core";
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
 
 // Database and Authentification
+import { getData } from "./testAdmin";
 import {db} from './firebase';
 import { addDoc, collection } from "firebase/firestore";
 
@@ -75,7 +76,18 @@ export default function Home() {
       }
      }
      checkLightDarkMode();
+   
+    
   }, []);
+
+  useEffect(() => {
+    const get = async() => {
+      const data = await getData();
+      console.log(data?.hallo)
+    }
+    get();
+    
+  },[])
   
   return (
    <>
