@@ -11,7 +11,7 @@ import { gsap } from "gsap/gsap-core";
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
 
 // Database and Authentification
-import {db} from './firebase';
+import {db} from './config/firebase';
 import { addDoc, collection } from "firebase/firestore";
 
 export default function Home() {
@@ -47,7 +47,7 @@ export default function Home() {
   }
 
   const addClient = async() => {
-    alert('Hi')
+   
     try {
       await addDoc(collection(db, "Client"), {
         text: 'HI'
