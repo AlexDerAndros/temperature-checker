@@ -11,7 +11,7 @@ import { gsap } from "gsap/gsap-core";
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
 
 // Database and Authentification
-import { getData } from "./testAdmin";
+import { getData, addData } from "./testAdmin";
 import {db} from './firebase';
 import { addDoc, collection } from "firebase/firestore";
 
@@ -59,6 +59,15 @@ export default function Home() {
     }
   };
 
+  const addServer = async() => {
+     const result= await addData();
+
+     if(result.success) {
+       console.log(result.id);
+     }
+  }
+  const[array, setArray] = useState<any[]>([]);
+
   useEffect(() => {
      const checkLightDarkMode = () => {
       if(localStorage.getItem("darkMode") === "true") {
@@ -82,8 +91,10 @@ export default function Home() {
 
   useEffect(() => {
     const get = async() => {
-      const data = await getData();
-      console.log(data?.id)
+      const data = await getData()
+      console.log(data);
+      setArray(data);
+      
     }
     get();
     
@@ -136,9 +147,14 @@ export default function Home() {
   </section>
 
   {/* Sidebar / rechte Cards */}
-  <aside className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
+  <aside onClick={addServer} className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
     <section className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
-      <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden </h3>
+      <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden
+        {array.map((item) => (
+          <p key={item.id}>
+            {item.id} {item.hallo}
+          </p>
+        ))} </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
         <span>0</span> 
         {/*Ändern */}
