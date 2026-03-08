@@ -14,7 +14,7 @@
 /coverage
 
 # database config
-app/config
+app/config_admin
 
 # next.js
 /.next/

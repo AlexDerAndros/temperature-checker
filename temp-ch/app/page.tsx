@@ -6,13 +6,13 @@ import {MapPin, Moon, SunMoon} from 'lucide-react';
 import { welcomeText } from "./texte";
 // GSAP
 import { gsap } from "gsap/gsap-core";
-
 // Charts
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
-
+//Routing
+import Link from "next/link";
 // Database and Authentification
-import { getData, addData } from "./testAdmin";
-import {db} from './firebase';
+import { getData, addData } from "./actions";
+import {db} from './config/firebase';
 import { addDoc, collection } from "firebase/firestore";
 
 export default function Home() {
@@ -103,9 +103,11 @@ export default function Home() {
   return (
    <>
      <header className={`w-full h-10 flex items-center justify-between md:justify-around ${padding}  `}>
-       <h2 className={`font-bold  hover:text-secondary active:text-secondary ${transition}  `}>
-         <span className="text-cold">T</span>emp<span className="text-warm">C</span>heck
-       </h2>
+       <Link href="/login_page">
+        <h2 className={`font-bold  hover:text-secondary active:text-secondary ${transition}  `}>
+          <span className="text-cold">T</span>emp<span className="text-warm">C</span>heck
+        </h2>
+       </Link> 
        <div className="flex row justify-around gap-x-1 text-base md:text-lg  ">
          {/*Aktueller Raum mit Raumauswahl */}
          <p className={`flex row  gap-1 h-10 items-center p-1 rounded-full 
@@ -152,7 +154,7 @@ export default function Home() {
       <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden
         {array.map((item) => (
           <p key={item.id}>
-            {item.id} {item.hallo}
+             {item.hallo}
           </p>
         ))} </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
