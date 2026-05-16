@@ -1,5 +1,5 @@
 "use client";
-import "./globals.css";
+
 import { useEffect, useState } from "react";
 // Icons
 import {MapPin, Moon, SunMoon} from 'lucide-react';
@@ -15,7 +15,12 @@ import { getData, addData } from "./actions";
 import {db} from './config/firebase';
 import { addDoc, collection } from "firebase/firestore";
 
+
+
 export default function Home() {
+  function HomeLG() {
+  
+  }
 
   const[darkMode, setDarkMode] = useState(false);
   const[temperatures, setTemperatures] = useState([{time: "12:00", Temperatur: 32}, {time:"13:00", Temperatur: 48}, {time:"14:00", Temperatur:45 },{time:"15:00", Temperatur:2 }]);
@@ -96,35 +101,7 @@ export default function Home() {
   
   return (
    <>
-     <header className={`w-full h-10 flex items-center justify-between md:justify-around ${padding}  `}>
-       <Link href="/login_page">
-        <h2 className={`font-bold  hover:text-secondary active:text-secondary ${transition}  `}>
-          <span className="text-cold">T</span>emp<span className="text-warm">C</span>heck
-        </h2>
-       </Link> 
-       <div className="flex row justify-around gap-x-1 text-base md:text-lg  ">
-         {/*Aktueller Raum mit Raumauswahl */}
-         <p className={`flex row  gap-1 h-10 items-center p-1 rounded-full 
-           cursor-pointer ${transition} hover:bg-container hover:text-secondary active:bg-container active:text-secondary`}>
-            <MapPin size={20}/> <span>Zimmer 1</span></p>
-         {/*Aktuelle Temperatur des Raumes in Celsius mit Zustand */}
-         <p className={`flex row  gap-1 h-10 items-center p-1 rounded-full 
-           cursor-pointer ${transition} hover:bg-container hover:text-secondary active:bg-container active:text-secondary`}>
-           <span className={`w-5 h-5 ${current} rounded-full aniTemp`}></span>
-           <span>24°C</span>
-         </p>
-         {/*Dark/Light Mode */}
-         <p className={`h-10 flex items-center  p-2 cursor-pointer rounded-full ${transition} hover:bg-container
-         hover:text-secondary active:bg-container active:text-secondary `}
-              onClick={pressDarkMode}>
-           {darkMode === true ? (
-            <Moon size={25} />
-           ): (
-            <SunMoon size={25}/>
-           )} 
-         </p>
-       </div>
-     </header>
+   
      
       <h2 className={`w-screen mt-5 flex flex-col items-center justify-center font-bold  ${transition} hover:text-secondary `}>Temperatur Dashboard von Zimmer 1</h2>
   <main className={`w-screen flex flex-col md:flex-row md:gap-5  justify-center items-center gap-5 my-7 px-5 md:px-10 lg:px-20 `}>
