@@ -59,13 +59,7 @@ export default function Home() {
     }
   };
 
-  const addServer = async() => {
-     const result= await addData();
-
-     if(result.success) {
-       console.log(result.id);
-     }
-  }
+  
   const[array, setArray] = useState<any[]>([]);
 
   useEffect(() => {
@@ -149,7 +143,7 @@ export default function Home() {
   </section>
 
   {/* Sidebar / rechte Cards */}
-  <aside onClick={addServer} className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
+  <aside  className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
     <section className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden
         {array.map((item) => (
