@@ -1,0 +1,20 @@
+import admin from 'firebase-admin';
+import { createRequire } from 'module';
+
+// Das erlaubt uns, eine JSON-Datei im ES-Modul-Modus sauber zu importieren
+const require = createRequire(import.meta.url);
+const serviceAccount = require('../config_admin/serviceAccountKey.json');
+
+if (!admin.apps.length) {
+  try {
+    admin.initializeApp({
+      // Firebase zieht sich jetzt alle IDs und Keys perfekt formatiert aus der Datei
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log("Firebase Admin Initialized ✅");
+  } catch (error) {
+    console.error("Firebase Admin Error ❌:", error.stack);
+  }
+}
+
+export const dbAdmin = admin.firestore();
