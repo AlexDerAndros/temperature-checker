@@ -1,7 +1,7 @@
 'use server'
 
 import { error } from "console";
-import { dbAdmin } from "./config/firebaseAdmin"
+import { dbAdmin } from "../config/firebaseServer";
 
 export const getData = async() => {
     try {
