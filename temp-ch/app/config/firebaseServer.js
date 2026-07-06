@@ -5,11 +5,10 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 let serviceAccount;
 try {
-  serviceAccount = require('serviceAccountKey.json');
+  serviceAccount = require('../../serviceAccountKey.json'); 
 } catch(e) {
   serviceAccount = require('../configAdmin/serviceAccountKey.json');
 }
-
 if (!admin.apps.length) {
   try {
     admin.initializeApp({
