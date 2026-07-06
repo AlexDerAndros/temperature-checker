@@ -9,10 +9,10 @@ import { gsap } from "gsap/gsap-core";
 // Charts
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
 //Routing
-import Link from "next/link";
+
 // Database and Authentification
-import { getData, addData } from "./actions";
-import {db} from './config/firebase';
+import { getData, addData } from "./backend/actions";
+import {db} from './config/firebaseClient';
 import { addDoc, collection } from "firebase/firestore";
 
 
