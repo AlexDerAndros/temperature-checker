@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "start-backend": "npx ts-node app/backend/StructureTempData.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
@@ -15,7 +16,7 @@
     "firebase-admin": "^10.3.0",
     "gsap": "^3.14.2",
     "lucide-react": "^0.571.0",
-    "next": "^16.2.10",
+    "next": "^16.2.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0"
