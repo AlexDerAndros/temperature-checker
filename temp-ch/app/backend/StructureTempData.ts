@@ -2,7 +2,7 @@ import express from 'express';
 import { dbAdmin } from "../config/firebaseServer.js";
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
@@ -12,7 +12,7 @@ interface TemperatureData {
     humidity: number;
 }
 
-// KORREKTUR: "number" klein schreiben!
+
 const addTempData = async (temp: number, hum: number) => {
     try {
         const timestamp = new Date().toLocaleString('de-DE');
@@ -28,7 +28,7 @@ const addTempData = async (temp: number, hum: number) => {
     }
 };
 
-// KORREKTUR: Die Route muss "async" sein, damit wir "await" nutzen können!
+
 app.post('/api/temperatureData', async (req: express.Request, res: express.Response) => {
     try {
         const data = req.body as TemperatureData;
@@ -55,6 +55,6 @@ app.post('/api/temperatureData', async (req: express.Request, res: express.Respo
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Backend-Server läuft live auf http://localhost:${PORT}`);
+app.listen(PORT , '0.0.0.0', () => {
+    console.log(`Backend-Server läuft live auf ${PORT}`);
 });

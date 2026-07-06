@@ -3,7 +3,7 @@ import { createRequire } from 'module';
 
 // Das erlaubt uns, eine JSON-Datei im ES-Modul-Modus sauber zu importieren
 const require = createRequire(import.meta.url);
-const serviceAccount = require('../config_admin/serviceAccountKey.json');
+const serviceAccount = require('../configAdmin/serviceAccountKey.json');
 
 if (!admin.apps.length) {
   try {
