@@ -13,7 +13,7 @@ import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "rec
 // Database and Authentification
 import { getData, addData } from "./backend/actions";
 import {db} from './config/firebaseClient';
-import { addDoc, collection } from "firebase/firestore";
+import { onSnapshot, collection } from "firebase/firestore";
 
 
 
@@ -23,7 +23,8 @@ export default function Home() {
   }
 
   const[darkMode, setDarkMode] = useState(false);
-  const[temperatures, setTemperatures] = useState([{time: "12:00", Temperatur: 32}, {time:"13:00", Temperatur: 48}, {time:"14:00", Temperatur:45 },{time:"15:00", Temperatur:2 }]);
+  const[temperatures, setTemperatures] = useState<any[]>([]);
+  const[loading, setLoading] = useState(false);
   const[container, setContainer] = useState('');
   const[containerHover, setContainerHover] = useState('');
   const[current, setCurrent] = useState("bg-normal");
@@ -52,20 +53,10 @@ export default function Home() {
     }
   }
 
-  const addClient = async() => {
-   
-    try {
-      await addDoc(collection(db, "Client"), {
-        text: 'HI'
-      });
-      console.log("Succeed");
-    }catch(e) {
-      console.log(e);
-    }
-  };
+  
 
   
-  const[array, setArray] = useState<any[]>([]);
+  
 
   useEffect(() => {
      const checkLightDarkMode = () => {
@@ -89,13 +80,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const get = async() => {
-      const data = await getData()
-      console.log(data);
-      setArray(data);
+     const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
+      const datas = snapshot.docs.map(doc => ({
+        ...doc.data(),
+      }));
       
-    }
-    get();
+      setLoading(false);
+      setTemperatures(datas);
+     
+    });
+    return () => getTemperatures();
     
   },[])
   
@@ -123,11 +117,12 @@ export default function Home() {
   <aside  className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
     <section className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden
-        {array.map((item) => (
-          <p key={item.id}>
-             {item.hallo}
-          </p>
-        ))} </h3>
+      
+      {temperatures.map((item, index) => 
+      <span key={index}>
+        {item.temperature} <br/>
+      </span>)}
+      </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
         <span>0</span> 
         {/*Ändern */}
@@ -135,7 +130,7 @@ export default function Home() {
           </div>
       </div>
     </section>
-     <section onClick={addClient} className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
+     <section className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Aktive Sensoren </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
         <span>0</span> 
