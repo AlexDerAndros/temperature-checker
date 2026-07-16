@@ -1,5 +1,6 @@
 import express from 'express';
 import { dbAdmin } from "../config/firebaseServer.js";
+import { time } from 'console';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -15,11 +16,13 @@ interface TemperatureData {
 
 const addTempData = async (temp: number, hum: number) => {
     try {
-        const timestamp = new Date().toLocaleString('de-DE');
+        const timestampMs = Date.now(); 
+        
         const docRef = await dbAdmin.collection("temperatures").add({
             temperature: temp,
             humidity: hum, 
-            timestamp: timestamp
+            timestamp: timestampMs, 
+            datePlusTime: new Date().toLocaleString("de-DE", { timeZone: "Europe/Berlin" })
         });
         return { success: true, id: docRef.id };
     } catch (e) {
@@ -27,7 +30,6 @@ const addTempData = async (temp: number, hum: number) => {
         return { success: false, error: "Fehler beim Speichern in Firebase" };
     }
 };
-
 
 app.post('/api/temperatureData', async (req: express.Request, res: express.Response) => {
     try {
