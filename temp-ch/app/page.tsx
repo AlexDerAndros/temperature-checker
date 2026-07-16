@@ -14,6 +14,7 @@ import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "rec
 import { getData, addData } from "./backend/actions";
 import {db} from './config/firebaseClient';
 import { onSnapshot, collection } from "firebase/firestore";
+import { time } from "console";
 
 
 
@@ -24,6 +25,7 @@ export default function Home() {
 
   const[darkMode, setDarkMode] = useState(false);
   const[temperatures, setTemperatures] = useState<any[]>([]);
+  const[differenceInMinutes, setDifferenceInMinutes] = useState(0);
   const[loading, setLoading] = useState(false);
   const[container, setContainer] = useState('');
   const[containerHover, setContainerHover] = useState('');
@@ -80,18 +82,44 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-     const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
-      const datas = snapshot.docs.map(doc => ({
-        ...doc.data(),
-      }));
+  const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
+    // 1. Daten auslesen
+    const datas = snapshot.docs.map(doc => {
+      const data = doc.data();
+      const rawDate = new Date(data.timestamp || Date.now());
       
-      setLoading(false);
-      setTemperatures(datas);
-     
+      return {
+        ...data,
+        id: doc.id,
+        timestamp: data.timestamp || Date.now(),
+        onlyTime: rawDate.toLocaleTimeString("de-DE", { hour: '2-digit', minute: '2-digit' })
+      };
     });
-    return () => getTemperatures();
-    
-  },[])
+
+    if (datas.length > 0) {
+      // 2. Sortieren, damit das neueste Element ganz hinten steht
+      datas.sort((a, b) => a.timestamp - b.timestamp);
+
+      // 3. Den neuesten Eintrag greifen (letzter Index im sortierten Array)
+      const newestEntry = datas[datas.length - 1];
+
+      // 4. Differenz fehlerfrei berechnen
+      const timePast = newestEntry.timestamp; // Das ist jetzt eine saubere Zahl (ms)
+      const timeNow = Date.now(); // Aktuelle Zeit in ms
+      
+      const difference = timeNow - timePast;
+      const difInMin = Math.floor(difference / 1000 / 60);
+
+      // 5. States setzen
+      setDifferenceInMinutes(difInMin < 0 ? 0 : difInMin); // Verhindert negative Minuten durch minimale Server-Abweichungen
+    }
+
+    setLoading(false);
+    setTemperatures(datas);
+  });
+
+  return () => getTemperatures();
+}, []);
   
   return (
    <>
@@ -102,13 +130,22 @@ export default function Home() {
 
   {/* Haupt-Card */}
   <section className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-screen p-5`} >
-     <h3 className={`font-bold ${transition}  `}>Liniendiagram der letzten 2 Stunden <span className="text-sm text-tertiary">(zuletzt aktualisiert vor 5 Minuten)</span> </h3>
+     <h3 className={`font-bold ${transition}  `}>Liniendiagram der letzten 2 Stunden <span className="text-sm text-tertiary">(zuletzt aktualisiert vor {differenceInMinutes} Minuten)</span> </h3>
      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={temperatures}>
-          <XAxis dataKey="time" label={{ value: "Uhrzeit", position: "insideBottom", offset: -5}}/>
-          <YAxis dataKey="Temperatur" label={{value: "Temperature in °C", position: "insideLeft", offset: 1, angle:270}}/>
-          <Tooltip contentStyle={{color: "black"}}/>
-          <Line type="monotone" dataKey="Temperatur" stroke="#8884d8" />
+         <XAxis dataKey="onlyTime" 
+                        label={{ value: "Uhrzeit", position: "insideBottom", offset: -5 }}
+          />
+          <YAxis dataKey="temperature" label={{ value: "Temperatur in °C", position: "insideLeft", offset: 1, angle: 270 }} />
+          <Tooltip 
+            labelFormatter={(value, items) => {
+                 // Zeigt im Tooltip beim Hovern das volle Datum anstelle von nur der Uhrzeit
+                 const item = items[0]?.payload;
+                   return item ? `Zeitpunkt: ${item.datePlusTime}` : value;
+                     }}
+               contentStyle={{ color: "black" }}
+             />
+          <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
          </LineChart> 
      </ResponsiveContainer>
   </section>
