@@ -1,5 +1,6 @@
 "use client";
 
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 // Icons
 import {MapPin, Moon, SunMoon} from 'lucide-react';
@@ -23,9 +24,9 @@ export default function Home() {
   
   }
 
-  const[darkMode, setDarkMode] = useState(false);
   const[temperatures, setTemperatures] = useState<any[]>([]);
-  const[differenceInMinutes, setDifferenceInMinutes] = useState(0);
+  const[difference, setDifference] = useState(0);
+  const[typeDifference, setTypeDifference] = useState("");
   const[loading, setLoading] = useState(false);
   const[container, setContainer] = useState('');
   const[containerHover, setContainerHover] = useState('');
@@ -38,23 +39,7 @@ export default function Home() {
   const padding = "px-1 md:px-30 lg:px-60";
   const hover = `hover:scale-[1.02] hover:shadow-md active:scale-[1.02] md:active:scale-[1.01] active:shadow-md ${containerHover} cursor-pointer`;
 
-  const pressDarkMode = () => {
-    const newDM = !darkMode;
-    setDarkMode(newDM);
-    localStorage.setItem("darkMode", newDM.toString());
-    if(newDM === true) {
-      setContainer('bg-containerDark');
-      setContainerHover('hover:bg-containerDarkHover active:bg-containerDarkHover');
-      document.body.classList.add(dark.bg, dark.color);
-      document.body.classList.remove(light.bg, light.color);
-    } else {
-      setContainer('bg-container');
-      setContainerHover('hover:bg-containerHover active:bg-containerHover');
-      document.body.classList.remove(dark.bg, dark.color);
-      document.body.classList.add(light.bg, light.color);
-    }
-  }
-
+  
   
 
   
@@ -62,18 +47,16 @@ export default function Home() {
 
   useEffect(() => {
      const checkLightDarkMode = () => {
-      if(localStorage.getItem("darkMode") === "true") {
+      if(Cookies.get("darkMode") === "true") {
         setContainer('bg-containerDark ');
         setContainerHover('hover:bg-containerDarkHover active:bg-containerDarkHover');
-        setDarkMode(true);
-        document.body.classList.add(dark.bg, dark.color);
-        document.body.classList.remove(light.bg, light.color);
+        //document.body.classList.add(dark.bg, dark.color);
+       // document.body.classList.remove(light.bg, light.color);
       } else {
         setContainer('bg-container');
         setContainerHover('hover:bg-containerHover active:bg-containerHover');
-        setDarkMode(false);
-        document.body.classList.remove(dark.bg, dark.color);
-        document.body.classList.add(light.bg, light.color);
+        //document.body.classList.remove(dark.bg, dark.color);
+        //document.body.classList.add(light.bg, light.color);
       }
      }
      checkLightDarkMode();
@@ -111,7 +94,33 @@ export default function Home() {
       const difInMin = Math.floor(difference / 1000 / 60);
 
       // 5. States setzen
-      setDifferenceInMinutes(difInMin < 0 ? 0 : difInMin); // Verhindert negative Minuten durch minimale Server-Abweichungen
+      if(difInMin >= 0) {
+        if(difInMin >= 1440) {
+          const newNumber = Math.floor(difInMin / 60/24);
+          setDifference(newNumber);
+          if( newNumber == 1 ){
+            setTypeDifference("Tag");
+          } else {
+            setTypeDifference("Tagen");
+          }
+        } else if(difInMin <= 1440 && difInMin >= 60) {
+          const newNumber = Math.floor(difInMin / 60);
+          setDifference(newNumber);
+          if( newNumber == 1 ){
+            setTypeDifference("Stunde");
+          } else {
+            setTypeDifference("Stunden");
+          }
+        }
+        else {
+          setDifference(difInMin);
+           if( difInMin == 1 ){
+            setTypeDifference("Minute");
+          } else {
+            setTypeDifference("Minuten");
+          } 
+        }
+      }
     }
 
     setLoading(false);
@@ -130,7 +139,7 @@ export default function Home() {
 
   {/* Haupt-Card */}
   <section className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-screen p-5`} >
-     <h3 className={`font-bold ${transition}  `}>Liniendiagram der letzten 2 Stunden <span className="text-sm text-tertiary">(zuletzt aktualisiert vor {differenceInMinutes} Minuten)</span> </h3>
+     <h3 className={`font-bold ${transition}  `}>Liniendiagram der letzten 2 Stunden <span className="text-sm text-tertiary">(zuletzt aktualisiert vor {difference} {typeDifference})</span> </h3>
      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={temperatures}>
          <XAxis dataKey="onlyTime" 
@@ -155,10 +164,6 @@ export default function Home() {
     <section className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden
       
-      {temperatures.map((item, index) => 
-      <span key={index}>
-        {item.temperature} <br/>
-      </span>)}
       </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
         <span>0</span> 
