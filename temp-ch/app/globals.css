@@ -1,33 +1,43 @@
 @import "tailwindcss";
 
-
 @theme inline {
-    /*Farbpalette*/
+    /* Farbpalette */
     --color-bgDark: #0D1717;
-    --color-container:   #EEF1F1 ;
+    --color-container: #EEF1F1;
     --color-containerHover: #e2e2e2;
-    --color-containerDark:  #131F1F;
+    --color-containerDark: #131F1F;
     --color-containerDarkHover: #1a2a2a;
     --color-warm: #f54d0b;
     --color-cold: #3B82F6;
     --color-normal: #10B981;
 
-    /*Buttons*/
+    /* Buttons */
     --color-btn: #1F2937; 
     --color-btn-hover: #1f2630;
 
-    /*Texte*/
-   --color-primary: #1A1A1A;
-   --color-secondary: #6B7280;
-   --color-tertiary: #9CA3AF;
-   --color-inverse: #FFFFFF;
+    /* Texte */
+    --color-primary: #1A1A1A;
+    --color-secondary: #6B7280;
+    --color-tertiary: #9CA3AF;
+    --color-inverse: #FFFFFF;
 }
 
+/* --- HIER IST DER ERGÄNZTE BODY-CODE --- */
 body {
     font-family: var(--font-inter), sans-serif;
-    background-color: var(--color-bgDark);
+    /* Standardmäßig im Light Mode: Hintergrund weiß, Text dunkel */
+    background-color: #FFFFFF; 
+    color: var(--color-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Wenn dem html-Tag die Klasse .dark hinzugefügt wird: */
+html.dark body {
+    /* Greift direkt auf deine definierte Variable --color-bgDark zu */
+    background-color: var(--color-bgDark); 
+    color: var(--color-inverse);
+}
+/* -------------------------------------- */
 
 h1 { font-size: 2rem; }
 h2 { font-size: 1.5rem; }

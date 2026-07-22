@@ -1,7 +1,7 @@
 "use client";
 
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 // Icons
 import {MapPin, Moon, SunMoon} from 'lucide-react';
 import { welcomeText } from "./texte";
@@ -15,21 +15,25 @@ import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "rec
 import { getData, addData } from "./backend/actions";
 import {db} from './config/firebaseClient';
 import { onSnapshot, collection } from "firebase/firestore";
-import { time } from "console";
+
+//Context Dark/Light
+import { useDarkLight } from "./contexts/DarkLightContext";
 
 
+function HomeLandingPage() {
+  return (
+    <>
+    </>
+  )
+}
 
-export default function Home() {
-  function HomeLG() {
-  
-  }
-
+function Homepage() {
+  const{container, containerHover} = useDarkLight();
   const[temperatures, setTemperatures] = useState<any[]>([]);
   const[difference, setDifference] = useState(0);
   const[typeDifference, setTypeDifference] = useState("");
   const[loading, setLoading] = useState(false);
-  const[container, setContainer] = useState('');
-  const[containerHover, setContainerHover] = useState('');
+ 
   const[current, setCurrent] = useState("bg-normal");
 
   const dark = { bg:"bg-bgDark",  color:"text-white" };
@@ -39,30 +43,9 @@ export default function Home() {
   const padding = "px-1 md:px-30 lg:px-60";
   const hover = `hover:scale-[1.02] hover:shadow-md active:scale-[1.02] md:active:scale-[1.01] active:shadow-md ${containerHover} cursor-pointer`;
 
+ 
   
-  
-
-  
-  
-
-  useEffect(() => {
-     const checkLightDarkMode = () => {
-      if(Cookies.get("darkMode") === "true") {
-        setContainer('bg-containerDark ');
-        setContainerHover('hover:bg-containerDarkHover active:bg-containerDarkHover');
-        //document.body.classList.add(dark.bg, dark.color);
-       // document.body.classList.remove(light.bg, light.color);
-      } else {
-        setContainer('bg-container');
-        setContainerHover('hover:bg-containerHover active:bg-containerHover');
-        //document.body.classList.remove(dark.bg, dark.color);
-        //document.body.classList.add(light.bg, light.color);
-      }
-     }
-     checkLightDarkMode();
-   
-    
-  }, []);
+ 
 
   useEffect(() => {
   const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
@@ -186,4 +169,16 @@ export default function Home() {
 </main>
     </> 
   );
+}
+
+
+export default function Home() {
+  const[loggedIn, setLoggedIN] = useState(true);
+  
+  if(loggedIn == true) {
+    return <Homepage/>
+  } else {
+    return <HomeLandingPage/>;
+  }
+  
 }
