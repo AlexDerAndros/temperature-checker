@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { useContext, useEffect, useState } from "react";
 // Icons
 import {MapPin, Moon, SunMoon} from 'lucide-react';
-import { welcomeText } from "./texte";
+import { WhatText, WhyText } from "./texte";
 // GSAP
 import { gsap } from "gsap/gsap-core";
 // Charts
@@ -12,7 +12,6 @@ import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "rec
 //Routing
 
 // Database and Authentification
-import { getData, addData } from "./backend/actions";
 import {db} from './config/firebaseClient';
 import { onSnapshot, collection } from "firebase/firestore";
 
@@ -20,32 +19,56 @@ import { onSnapshot, collection } from "firebase/firestore";
 import { useDarkLight } from "./contexts/DarkLightContext";
 
 
-function HomeLandingPage() {
+
+type HomepageProps = {
+  container: string;
+  hover: string;
+  transition:string;
+};
+
+function HomeLandingPage({container, hover, transition}:HomepageProps) {
+  const padding = "p-5 rounded-md";
+
   return (
-    <>
-    </>
+    <div className="w-screen flex justify-center items-center flex-col mb-5">
+      <h2 className={`font-bold mt-5 `}>
+        Willkommen bei TempCheck!
+      </h2>
+      <main className={`w-4/5 flex flex-col gap-y-7 mt-7`}>
+        <section className={`${padding} ${container} ${hover} ${transition} `}>
+         <h3 className="font-bold text-center mb-1 md:mb-2">Was ist TempCheck?</h3>
+            <p>
+              {WhatText}
+            </p>
+        </section>
+        <section className={`${padding} ${container} ${hover} ${transition}`}>
+            <h3 className="font-bold text-center mb-1 md:mb-2">Wozu brauchst du TempCheck?</h3>
+            <p> {WhyText}</p>
+        </section>
+        
+       <section className="text-center font-bold flex flex-col items-center gap-2">
+         <button className="bg-cold text-white px-6 py-2 rounded-lg hover:opacity-90 transition cursor-pointer">
+           Logge dich jetzt ein
+         </button>
+         <span className="text-tertiary text-sm">oder</span>
+         <button className="border border-cold text-cold px-6 py-2 rounded-lg hover:bg-cold hover:text-white transition cursor-pointer">
+           Registriere dich!
+         </button>
+        </section>
+      
+      </main>
+    </div>
   )
 }
 
-function Homepage() {
-  const{container, containerHover} = useDarkLight();
+function Homepage({container, hover, transition}:HomepageProps) {
+  
   const[temperatures, setTemperatures] = useState<any[]>([]);
   const[difference, setDifference] = useState(0);
   const[typeDifference, setTypeDifference] = useState("");
   const[loading, setLoading] = useState(false);
  
   const[current, setCurrent] = useState("bg-normal");
-
-  const dark = { bg:"bg-bgDark",  color:"text-white" };
-  const light = {bg:"bg-white", color:"text-primary"};
-  
-  const transition = "transition-alternate duration-300";
-  const padding = "px-1 md:px-30 lg:px-60";
-  const hover = `hover:scale-[1.02] hover:shadow-md active:scale-[1.02] md:active:scale-[1.01] active:shadow-md ${containerHover} cursor-pointer`;
-
- 
-  
- 
 
   useEffect(() => {
   const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
@@ -115,9 +138,7 @@ function Homepage() {
   
   return (
    <>
-   
-     
-      <h2 className={`w-screen mt-5 flex flex-col items-center justify-center font-bold  ${transition} hover:text-secondary `}>Temperatur Dashboard von Zimmer 1</h2>
+  <h2 className={`w-screen mt-5 flex flex-col items-center justify-center font-bold  ${transition} hover:text-secondary `}>Temperatur Dashboard von Zimmer 1</h2>
   <main className={`w-screen flex flex-col md:flex-row md:gap-5  justify-center items-center gap-5 my-7 px-5 md:px-10 lg:px-20 `}>
 
   {/* Haupt-Card */}
@@ -173,12 +194,15 @@ function Homepage() {
 
 
 export default function Home() {
-  const[loggedIn, setLoggedIN] = useState(true);
-  
+  const[loggedIn, setLoggedIN] = useState(false);
+  const{container, containerHover} = useDarkLight();
+  const hover = `hover:scale-[1.02] hover:shadow-md active:scale-[1.02] md:active:scale-[1.01] active:shadow-md ${containerHover} cursor-pointer`;
+  const transition = "transition-alternate duration-300";
+
   if(loggedIn == true) {
-    return <Homepage/>
+    return <Homepage container={container} hover={hover} transition={transition} />
   } else {
-    return <HomeLandingPage/>;
+    return <HomeLandingPage container={container} hover={hover} transition={transition} />;
   }
   
 }

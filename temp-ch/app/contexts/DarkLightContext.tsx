@@ -18,6 +18,12 @@ export function DarkLightProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const isDark = Cookies.get("darkMode") === "true";
     setDarkMode(isDark);
+    
+     if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   }, []);
 
   const toggleTheme = () => {

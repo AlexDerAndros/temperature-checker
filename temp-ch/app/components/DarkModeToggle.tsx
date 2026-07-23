@@ -10,7 +10,7 @@ export default function DarkModeToggle() {
   return (
     <div
       className="h-10 w-10 flex items-center justify-center p-2 cursor-pointer rounded-full transition hover:bg-containerHover hover:text-secondary"
-      onClick={toggleTheme} // <--- Benutzt jetzt die globale Funktion aus dem Context!
+      onClick={toggleTheme} 
     >
       {darkMode ? <Moon size={25} /> : <SunMoon size={25} />}
     </div>

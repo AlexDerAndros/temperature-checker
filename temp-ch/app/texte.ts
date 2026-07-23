@@ -1,9 +1,7 @@
-export const welcomeText = `Willkommen bei TempCheck, dem smarten
- System für moderne Temperaturüberwachung. Mit präziser Sensorik
-  und KI‑Analyse behalten Sie wichtige Räume jederzeit im Blick 
-  und erkennen kritische Veränderungen frühzeitig. 
-  Ob im Serverraum, in Laboren, Kühl- und Lagerräumen,
-   Produktionsbereichen, Gewächshäusern oder im Smart Home – 
-   TempCheck sorgt für stabile, sichere und zukunftsorientierte 
-   Umgebungen.
+export const WhatText = `
+TempCheck ist dein intelligentes Echtzeit-Dashboard zur Temperaturüberwachung. Mit direkter Anbindung an IoT-Sensoren verarbeitet die Plattform Messdaten sekundenschnell, visualisiert den Verlauf in übersichtlichen Diagrammen und warnt dich sofort bei kritischen Temperaturabweichungen.
+`;
+
+export const WhyText = `
+Ob zur Präzisionsüberwachung in Räumen, zur Absicherung empfindlicher IT-Infrastruktur oder für Smart-Home-Szenarien: TempCheck nimmt dir die manuelle Kontrolle ab. Du behältst deine Umgebungstemperaturen rund um die Uhr im Blick, erkennst Trends frühzeitig und schützt deine Hardware vor Überhitzung.
 `;
