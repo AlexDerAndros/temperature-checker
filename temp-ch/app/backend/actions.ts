@@ -1,33 +1,20 @@
-'use server'
-
+'use server';
 
 import { dbAdmin } from "../config/firebaseServer";
 
-export const getData = async() => {
-    try {
-       const snapshot = await dbAdmin.collection('server').get();
-       if (snapshot.empty) {
-            console.log("Dokument existiert nicht!");
-            return []; 
-        }
-       const data = snapshot.docs.map((doc) => ({
-         id: doc.id, ...doc.data()
-       }));    
-       return data;
-    }catch(e) {
-        console.error(e);
-        throw new Error("Datenbankfehler");
-    }
-}
+export const addUser = async (uid: string, email: string | null) => {
+  try {
+    // Nutzen der UID als Dokument-ID!
+    await dbAdmin.collection("users").doc(uid).set({
+      email: email,
+      role: "user", 
+      highestTemp: 0,
+      lowestTemp: 0
+    }, { merge: true }); // { merge: true } verhindert, dass vorhandene Daten überschrieben werden
 
-export const addData = async() => {
-   try {
-      const docRef = await dbAdmin.collection("server").add({
-        hallo: "penis"
-      });
-      return{success: true, id:docRef.id};
-   }catch(e) {
-     console.error(e);
-      return{success: false, error:"Fehler"};
-   }
+    return { success: true };
+  } catch (e) {
+    console.error(e);
+    return { success: false, error: "Fehler beim Anlegen des Nutzers" };
+  }
 }

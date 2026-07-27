@@ -31,9 +31,9 @@ function HomeLandingPage({container, hover, transition}:HomepageProps) {
 
   return (
     <div className="w-screen flex justify-center items-center flex-col mb-5">
-      <h2 className={`font-bold mt-5 `}>
+      <span className={`font-bold mt-5 text-2xl  md:text-3xl lg:text-4xl `}>
         Willkommen bei TempCheck!
-      </h2>
+      </span>
       <main className={`w-4/5 flex flex-col gap-y-7 mt-7`}>
         <section className={`${padding} ${container} ${hover} ${transition} `}>
          <h3 className="font-bold text-center mb-1 md:mb-2">Was ist TempCheck?</h3>
@@ -46,12 +46,12 @@ function HomeLandingPage({container, hover, transition}:HomepageProps) {
             <p> {WhyText}</p>
         </section>
         
-       <section className="text-center font-bold flex flex-col items-center gap-2">
-         <button className="bg-cold text-white px-6 py-2 rounded-lg hover:opacity-90 transition cursor-pointer">
+       <section className= {`text-center font-bold flex flex-col items-center gap-2`}>
+         <button className={`bg-cold text-white px-6 py-2 rounded-lg hover:opacity-90 ${transition} cursor-pointer`}>
            Logge dich jetzt ein
          </button>
          <span className="text-tertiary text-sm">oder</span>
-         <button className="border border-cold text-cold px-6 py-2 rounded-lg hover:bg-cold hover:text-white transition cursor-pointer">
+         <button className={`border border-cold text-cold px-6 py-2 rounded-lg hover:bg-cold hover:text-white  cursor-pointer ${transition}`}>
            Registriere dich!
          </button>
         </section>

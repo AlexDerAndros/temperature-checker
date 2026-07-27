@@ -4,7 +4,7 @@ import { useDarkLight } from "@/contexts/DarkLightContext";
 import { Moon, SunMoon } from "lucide-react";
 
 export default function DarkModeToggle() {
-  // Wir holen uns alles direkt aus dem Provider
+
   const { darkMode, toggleTheme } = useDarkLight();
 
   return (
@@ -13,6 +13,7 @@ export default function DarkModeToggle() {
       onClick={toggleTheme} 
     >
       {darkMode ? <Moon size={25} /> : <SunMoon size={25} />}
+      
     </div>
   );
 }

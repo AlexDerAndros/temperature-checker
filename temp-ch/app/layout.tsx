@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { DarkLightProvider } from "./contexts/DarkLightContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import DarkModeToggle from "@/components/DarkModeToggle";
 
 const inter = Inter({
@@ -22,10 +23,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable}`}>
-        <DarkLightProvider>
-          <DarkModeToggle />
-          {children}
-        </DarkLightProvider>
+        <AuthProvider>
+         <DarkLightProvider>
+           <DarkModeToggle />
+           {children}
+         </DarkLightProvider>
+        </AuthProvider> 
       </body>
     </html>
   );
