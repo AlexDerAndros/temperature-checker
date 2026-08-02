@@ -1,14 +1,27 @@
-import { GoogleLogin, auth, db } from "@/config/firebaseClient";
-import { signInWithEmailAndPassword, onAuthStateChanged, createUserWithEmailAndPassword, signOut, signInWithPopup } from "firebase/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Login() {
-    return (
+  const {emailInput, passwordInput, setEmailInput,
+     setPasswordInput, CreateUser, SignInWithGoogle} = useAuth(); 
+  const handleSubmit = (e:React.FormEvent<HTMLFormElement>) => {
+      
+    }
+  return (
+    
       <></>
-    );
+  );
 }
 
 export function Register() {
     return (
       <></>
     );
+}
+
+function LogReg() {
+  return (
+    <>
+    
+    </>
+  )
 }

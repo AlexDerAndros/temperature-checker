@@ -15,9 +15,11 @@ import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "rec
 import {db} from './config/firebaseClient';
 import { onSnapshot, collection } from "firebase/firestore";
 
-//Context Dark/Light
+//Contexts
 import { useDarkLight } from "./contexts/DarkLightContext";
+import { useAuth } from "./contexts/AuthContext";
 
+//
 
 
 type HomepageProps = {
@@ -47,8 +49,8 @@ function HomeLandingPage({container, hover, transition}:HomepageProps) {
         </section>
         
        <section className= {`text-center font-bold flex flex-col items-center gap-2`}>
-         <button className={`bg-cold text-white px-6 py-2 rounded-lg hover:opacity-90 ${transition} cursor-pointer`}>
-           Logge dich jetzt ein
+         <button className={`text-md md:text-lg w-1/2 md:1/3 lg:w-1/4 bg-cold text-white px-6 py-2 rounded-lg hover:opacity-90 ${transition} cursor-pointer`}>
+           Logge dich jetzt ein!
          </button>
          <span className="text-tertiary text-sm">oder</span>
          <button className={`border border-cold text-cold px-6 py-2 rounded-lg hover:bg-cold hover:text-white  cursor-pointer ${transition}`}>
@@ -194,12 +196,18 @@ function Homepage({container, hover, transition}:HomepageProps) {
 
 
 export default function Home() {
-  const[loggedIn, setLoggedIN] = useState(false);
+  const {user, loading} = useAuth();
   const{container, containerHover} = useDarkLight();
   const hover = `hover:scale-[1.02] hover:shadow-md active:scale-[1.02] md:active:scale-[1.01] active:shadow-md ${containerHover} cursor-pointer`;
   const transition = "transition-alternate duration-300";
-
-  if(loggedIn == true) {
+  
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${container}`}>
+        <p className="animate-pulse">Lade Status...</p>
+      </div>
+    );
+  } else if(user) {
     return <Homepage container={container} hover={hover} transition={transition} />
   } else {
     return <HomeLandingPage container={container} hover={hover} transition={transition} />;

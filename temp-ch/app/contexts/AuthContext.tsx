@@ -18,6 +18,7 @@ type AuthType = {
   passwordInput: string;       // Formular-Feld Passwort
   error: string;
   loading: boolean;
+  loggedIn: boolean;
   setEmailInput: (val: string) => void;
   setPasswordInput: (val: string) => void;
   SignIn: () => Promise<void>;
@@ -34,10 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [passwordInput, setPasswordInput] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   // Auth-Observer
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setLoggedIn(true);
       setUser(currentUser);
       setLoading(false);
     });
@@ -53,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userCredential = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
         // Wir übergeben die UID und Email an die Server Action
         await addUser(userCredential.user.uid, userCredential.user.email);
+        setLoggedIn(true);
       } catch (e: any) {
         setError(e.message || "Fehler bei der Registrierung");
       }
@@ -65,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (emailInput.trim() && passwordInput.trim()) {
       try {
         await signInWithEmailAndPassword(auth, emailInput, passwordInput);
+        setLoggedIn(true);
       } catch (e: any) {
         setError(e.message || "Fehler beim Login");
       }
@@ -77,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await signInWithPopup(auth, GoogleLogin);
       // Legt das Profil an, falls es noch nicht existiert
       await addUser(result.user.uid, result.user.email);
+      setLoggedIn(true);
     } catch (e: any) {
       setError(e.message || "Google Login fehlgeschlagen");
     }
@@ -84,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const SignOut = async () => {
     await signOut(auth);
+    setLoggedIn(false);
   };
 
   return (
@@ -93,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       passwordInput, 
       error, 
       loading, 
+      loggedIn,
       setEmailInput, 
       setPasswordInput, 
       CreateUser, 
