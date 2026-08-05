@@ -41,10 +41,7 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
   } else {
    return (
     <div className="w-screen flex justify-center items-center flex-col mb-5">
-      <span className="font-bold mt-5 text-2xl md:text-3xl lg:text-4xl">
-        Willkommen bei TempCheck!
-      </span>
-
+      
       <main className="w-4/5 flex flex-col gap-y-7 mt-7">
         <section className={`${padding} ${container} ${hover} ${transition}`}>
           <h3 className="font-bold text-center mb-1 md:mb-2">Was ist TempCheck?</h3>
@@ -61,7 +58,7 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
             type="button"
             text="Logge dich jetzt ein!" 
             onClick={() => setView("login")}
-            addStyle="bg-cold text-white hover:opacity-90"
+            addStyle="bg-cold  hover:opacity-80"
           />
 
           <span className="text-tertiary text-sm">oder</span>
@@ -70,7 +67,7 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
             type="button"
             text="Registriere dich!" 
             onClick={() => setView("register")}
-            addStyle="border border-cold text-cold bg-transparent hover:bg-cold hover:text-white"
+            addStyle="bg-cold hover:opacity-80"
           />
         </section>
       </main>
