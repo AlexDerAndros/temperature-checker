@@ -32,7 +32,18 @@ type ViewState = "landing" | "login" | "register";
 
 export function HomeLandingPage({ container, hover, transition }: HomepageProps) {
   const [view, setView] = useState<ViewState>("landing");
-  const padding = "p-5 rounded-md";
+  const padding = "p-6 md:p-8 rounded-md";
+  const [temp, setTemp] = useState<number>(22);//Definition eines Number States
+
+  // get-Funktion, die mehrere Variable basierend auf t als Nummerparameter wiedergibt,
+  //if, else Statement wo zu verschiedenen Temperaturen verschiedene Farben sowie verschiedene Labels ausgewählt werden
+  const getTempColor = (t: number) => {
+    if (t < 18) return { text: "text-cold", bg: "bg-cold", label: "Kühl" };
+    if (t <= 25) return { text: "text-normal", bg: "bg-normal", label: "Optimal" };
+    return { text: "text-warm", bg: "bg-warm", label: "Kritisch" };
+  };
+
+  const status = getTempColor(temp); //Rückgabewerte wird als Object an die Konstante Status übergeben
 
   if (view === "login") {
     return <Login onClick={() => setView("landing")} />;
@@ -43,14 +54,84 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
     <div className="w-screen flex justify-center items-center flex-col mb-5">
       
       <main className="w-4/5 flex flex-col gap-y-7 mt-7">
-        <section className={`${padding} ${container} ${hover} ${transition}`}>
-          <h3 className="font-bold text-center mb-1 md:mb-2">Was ist TempCheck?</h3>
-          <p>{WhatText}</p>
-        </section>
+        <section className={`${padding} ${container} ${hover} ${transition} max-w-4xl mx-auto my-8`}>
+      <h3 className="font-bold text-2xl md:text-3xl text-center mb-6  ">
+        Was ist TempCheck?
+      </h3>
 
-        <section className={`${padding} ${container} ${hover} ${transition}`}>
-          <h3 className="font-bold text-center mb-1 md:mb-2">Wozu brauchst du TempCheck?</h3>
-          <p>{WhyText}</p>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+        
+        {/* Interaktives 2D-Thermometer / Widget */}
+        <div className={`w-full  ${transition} hover:scale-105  md:w-1/2 flex flex-col items-center justify-center p-6 bg-btn text-white rounded-xl `}>
+          
+          {/* Live Temp Display */}
+          <div className="text-center mb-4">
+            <span className="text-xs font-semibold uppercase tracking-wider ">
+              Live-Simulation
+            </span>
+            <div className={`text-4xl font-black ${status.text} transition-colors duration-200`}>
+              {temp.toFixed(1)} °C {/**Nummer Temp wird auf eine Nachkommastelle gerundet */}
+            </div>
+            <span className={`inline-block px-2.5 py-0.5 mt-1 text-xs font-bold rounded-full  ${status.bg} transition-colors duration-200`}>
+              {status.label} {/**Object wird aufgerufen  */}
+            </span>
+          </div>
+
+          {/* Slider & Skala */}
+          <div className="w-full max-w-xs space-y-2">
+            {/**Schieberegler wird mit weiteren Attributen deklariert  */}
+            <input 
+              type="range" 
+              min="10" 
+              max="35" 
+              step="0.5"
+              value={temp}
+              onChange={(e) => setTemp(parseFloat(e.target.value))}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            />
+            <div className="flex justify-between text-xs text-slate-400 font-medium px-1">
+              <span>10°C</span> 
+              <span>22°C</span>
+              <span>35°C</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Beschreibungstext */}
+        <div className="w-full md:w-1/2">
+          <p className=" leading-relaxed text-base md:text-lg">
+            {WhatText}
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+        <section className={`${padding} ${container} ${hover} ${transition}  max-w-4xl mx-auto my-8`}>
+          <h3 className="font-bold text-center mb-6">Wozu brauchst du TempCheck?</h3>
+          <div className={`w-full flex flex-col md:flex-row gap-8 items-center justify-between`} >
+           <img 
+             src="/images/WhyTempCheck.png" 
+             alt="TempCheck Kontrast" 
+             className={`w-full md:w-1/2 rounded-lg object-cover hover:scale-105 ${transition}`} 
+           />
+           <div className="w-full md:w-1/2 leading-relaxed text-lg">
+             <ul className="space-y-3 text-sm md:text-base font-medium">
+                <li className="flex items-center gap-x-3">
+                <span className="text-xl">⚡</span>
+               <span>Echtzeit-Überwachung rund um die Uhr</span>
+              </li>
+              <li className="flex items-center gap-x-3">
+               <span className="text-xl">🔔</span>
+               <span>Sofortige Warnung bei kritischer Temperatur</span>
+             </li>
+            <li className="flex items-center gap-x-3">
+              <span className="text-xl">📊</span>
+              <span>Automatische Daten-Historie & Berichte</span>
+            </li>
+           </ul>
+           </div>
+          </div>
         </section>
         
         <section className="text-center font-bold flex flex-col items-center gap-2">

@@ -3,15 +3,22 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Input, Button, BackButton } from "./Components";
 import { GoogleIcon } from "../icons/GoogleIcon";
 import { Eye, EyeOff } from "lucide-react";
-
 type BackButtonType = {
    onClick: () => void;
 };
-const formStyle = " mt-5 w-full flex flex-col justify-center items-center gap-y-5";
-const inputStyle = "w-9/10 md:w-7/10 lg:w-1/2";
+const formStyle = " mt-5 w-full md:w-1/2 flex flex-col justify-center items-center gap-y-5 px-3";
+
+const imgConStyle = " w-full flex flex-col-reverse md:flex-row   gap-16 items-center justify-center";
+const inputStyle = "w-full relative";
+
+const Image = () => (
+  <img src="/images/Login_Register.png"
+       className="w-[90%] md:w-[40%] object-cover rounded-lg"
+       alt=""/>
+);
 
 export function Login({ onClick }: BackButtonType) {
-  // 1. NEUER STATE: Sichtbarkeit des Passworts
+
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -27,15 +34,17 @@ export function Login({ onClick }: BackButtonType) {
     SignIn();
   };
 
-  // Hilfsvariablen
   const passwordType = showPassword ? "text" : "password";
 
   return (
-    <form onSubmit={handleLogin} className={formStyle}>
-      <BackButton onClick={onClick} />
+    <>
+   <BackButton onClick={onClick} />
+    <div className={imgConStyle}>
+     <Image/>
+     <form onSubmit={handleLogin} className={formStyle}>
+      
       <h2 className="font-bold text-xl mb-3">Login</h2>
       
-      {/* 2. E-Mail Input (Bleibt gleich) */}
       <Input
         type="text"
         placeholder="E-Mail Adresse..."
@@ -44,12 +53,11 @@ export function Login({ onClick }: BackButtonType) {
         addStyle={inputStyle}
       />
 
-      {/* 3. DAS NEUE PASSWORT-FELD-LAYOUT */}
-      {/* Der Container MUSS w-full md:w-1/2 lg:w-1/3 sein und RELATIVE positioniert */}
      
-      <div className="relative w-9/10 md:w-7/10 lg:w-1/2 ">
+     
+      <div className={inputStyle}>
         <Input
-          type={passwordType} // Dynamischer Typ ("password" oder "text")
+          type={passwordType}
           placeholder="Passwort..."
           value={passwordInput}
           setValue={setPasswordInput}
@@ -75,30 +83,97 @@ export function Login({ onClick }: BackButtonType) {
       <Button type="submit" text="Einloggen"  />
       <GoogleLogin />
     </form>
+    </div>
+    </>
   );
 }
 
-export function Register({onClick}:BackButtonType) {
-   const {emailInput, passwordInput, setEmailInput,
-     setPasswordInput, CreateUser} = useAuth(); 
-   const handleRegister = (e:React.FormEvent<HTMLFormElement>) => {
-     e.preventDefault();
-     CreateUser();    
-   };
-    return (
-       <form onSubmit={handleRegister} className={formStyle}>
-        <BackButton onClick={onClick}/>
-        <h2 className={`font-bold`}>Registrierung</h2>
-        <Input type="text" placeholder="E-Mail Adresse angeben..." value={emailInput}
-        setValue={setEmailInput}/>
-        <Input type="password" placeholder="Passwort erstellen..." value={passwordInput}
-        setValue={setPasswordInput}/>
-        <Button type="submit" text="Registrieren"/>
-        <GoogleLogin/>
-     </form>
-    );
-}
+export function Register({ onClick }: BackButtonType) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false); // State für die Checkbox
 
+  const {
+    emailInput,
+    passwordInput,
+    setEmailInput,
+    setPasswordInput,
+    CreateUser
+  } = useAuth(); 
+
+  const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!agreedToTerms) return; // Sicherheits-Check
+    CreateUser();    
+  };
+
+  const passwordType = showPassword ? "text" : "password";
+
+  return (
+    <>
+      <BackButton onClick={onClick} />
+      <div className={imgConStyle}>
+        <Image />
+        <form onSubmit={handleRegister} className={formStyle}>
+          <h2 className="font-bold text-xl mb-3">Registrierung</h2>
+          
+          <Input
+            type="text"
+            placeholder="E-Mail Adresse..."
+            value={emailInput}
+            setValue={setEmailInput}
+            addStyle={inputStyle}
+          />
+
+          <div className={inputStyle}>
+            <Input
+              type={passwordType}
+              placeholder="Passwort..."
+              value={passwordInput}
+              setValue={setPasswordInput}
+              isPassword={true} 
+              addStyle="w-full"
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="cursor-pointer absolute right-6 top-1/2 -translate-y-1/2 text-tertiary hover:text-secondary transition-colors duration-200"
+              aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+
+          {/* Jugendschutz & DSGVO Checkbox (Art. 8 DSGVO / § 16 BDSG) */}
+          <div className={`${inputStyle} flex items-start gap-3 text-xs text-slate-500 my-1`}>
+            <input
+              type="checkbox"
+              id="privacy"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-emerald-500 cursor-pointer"
+              required
+            />
+            <label htmlFor="privacy" className="cursor-pointer leading-tight">
+              Ich bestätige, dass ich mindestens 16 Jahre alt bin (oder die Einwilligung der Erziehungsberechtigten vorliegt) und akzeptiere die Datenschutzbestimmungen.
+            </label>
+          </div>
+
+          <Button 
+            type="submit" 
+            text="Registrieren" 
+            disabled={!agreedToTerms} 
+          />
+          <GoogleLogin />
+        </form>
+      </div>
+    </>
+  );
+}
  function GoogleLogin() {
   const { SignInWithGoogle } = useAuth();
   return (
