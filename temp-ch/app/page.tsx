@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 //Texte
-import { WhatText, WhyText } from "./texte";
+import { WhatText } from "./texte";
 // GSAP
 import { gsap } from "gsap/gsap-core";
 // Charts
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
 //Routing
-
+import  Link  from "next/link";
 // Database and Authentification
 import {db} from './config/firebaseClient';
 import { onSnapshot, collection } from "firebase/firestore";
@@ -236,7 +236,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
   return (
    <>
   <h2 className={`w-screen mt-5 flex flex-col items-center justify-center font-bold  ${transition} hover:text-secondary `}>
-   {user?.email} Temperatur Dashboard von Zimmer 1
+    Temperatur Dashboard von Zimmer 1
   </h2>
   <main className={`w-screen flex flex-col md:flex-row md:gap-5  justify-center items-center gap-5 my-7 px-5 md:px-10 lg:px-20 `}>
    <Button text="Ausloggen" onClick={SignOut}/>
@@ -245,7 +245,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
   <div className={`min-h-screen flex items-center justify-center ${container}`}>
         <p className="animate-pulse">Lade Status...</p>
     </div>): (
-  <section className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-screen p-5`} >
+  <Link href="/Dashboard" className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-screen p-5`} >
      <h3 className={`font-bold ${transition}  `}>Liniendiagram der letzten 2 Stunden <span className="text-sm text-tertiary">(zuletzt aktualisiert vor {difference} {typeDifference})</span> </h3>
      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={temperatures}>
@@ -264,12 +264,13 @@ function Homepage({container, hover, transition}:HomepageProps) {
           <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
          </LineChart> 
      </ResponsiveContainer>
-  </section>
+  </Link>
   )}
 
   {/* Sidebar / rechte Cards */}
   <aside  className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
-    <section className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
+  <Link href="/Warnings" className="w-[45%] md:w-auto">
+    <section className={`${container} w-full rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden
       
       </h3>
@@ -280,7 +281,9 @@ function Homepage({container, hover, transition}:HomepageProps) {
           </div>
       </div>
     </section>
-     <section className={`${container} w-[45%] md:w-auto rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
+    </Link>
+    <Link href="/Sensors" className="w-[45%] md:w-auto">
+     <section className={`${container} w-full  rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Aktive Sensoren </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
         <span>0</span> 
@@ -289,6 +292,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
           </div>
       </div>
     </section>
+    </Link>
   </aside>
 
 </main>

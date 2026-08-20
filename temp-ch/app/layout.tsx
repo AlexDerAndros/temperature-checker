@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { DarkLightProvider } from "./contexts/DarkLightContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,14 +22,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable}`}>
+    <html lang="de">
+      {/* h-full / min-h-screen zwingt den Body auf volle Höhe */}
+      <body className={`${inter.variable} min-h-screen flex flex-col justify-between`}>
         <AuthProvider>
-         <DarkLightProvider>
-           <Header />
-           {children}
-         </DarkLightProvider>
-        </AuthProvider> 
+          <DarkLightProvider>
+            <Header />
+            {/* flex-1 dehnt den Inhaltsbereich automatisch aus und schiebt den Footer runter */}
+            <main className="flex-1 flex flex-col justify-center">
+              {children}
+            </main>
+          </DarkLightProvider>
+        </AuthProvider>
+        <Footer />
       </body>
     </html>
   );

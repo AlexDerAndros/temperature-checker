@@ -6,6 +6,8 @@ import { Eye, EyeOff } from "lucide-react";
 type BackButtonType = {
    onClick: () => void;
 };
+
+const mainWrapperStyle = "w-full py-8 my-auto ";
 const formStyle = " mt-5 w-full md:w-1/2 flex flex-col justify-center items-center gap-y-5 px-3";
 
 const imgConStyle = " w-full flex flex-col-reverse md:flex-row   gap-16 items-center justify-center";
@@ -37,7 +39,7 @@ export function Login({ onClick }: BackButtonType) {
   const passwordType = showPassword ? "text" : "password";
 
   return (
-    <>
+    <div className={mainWrapperStyle}>
    <BackButton onClick={onClick} />
     <div className={imgConStyle}>
      <Image/>
@@ -84,7 +86,7 @@ export function Login({ onClick }: BackButtonType) {
       <GoogleLogin />
     </form>
     </div>
-    </>
+    </div>
   );
 }
 
@@ -109,7 +111,7 @@ export function Register({ onClick }: BackButtonType) {
   const passwordType = showPassword ? "text" : "password";
 
   return (
-    <>
+    <div className={mainWrapperStyle}>
       <BackButton onClick={onClick} />
       <div className={imgConStyle}>
         <Image />
@@ -171,7 +173,7 @@ export function Register({ onClick }: BackButtonType) {
           <GoogleLogin />
         </form>
       </div>
-    </>
+    </div>
   );
 }
  function GoogleLogin() {

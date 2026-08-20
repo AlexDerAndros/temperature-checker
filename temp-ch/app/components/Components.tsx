@@ -69,7 +69,7 @@ export function Button({
         text-md md:text-lg bg-btn text-white px-6 py-2 rounded-lg
         ${disabled 
           ? "opacity-50 cursor-not-allowed pointer-events-none" 
-          : "hover:bg-btn-hover cursor-pointer"
+          : "hover:bg-btn-hover cursor-pointer hover:scale-103"
         } 
         ${transition} ${addStyle}`}
     >
@@ -87,7 +87,7 @@ type BackButton = {
 export function BackButton({ onClick, addStyle = "" }: BackButton) { // <-- Default "" hinzugefügt
   const transition = "transition-alternate duration-300";
   return (
-   <div className="w-full flex items-start md:mb-5"> 
+   <div className="w-full absolute top-[7%] left-0"> 
     <button 
       type="button" 
       onClick={onClick}

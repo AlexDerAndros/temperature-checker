@@ -2,8 +2,12 @@
 
 import { useDarkLight } from "@/contexts/DarkLightContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { Moon, SunMoon } from "lucide-react";
+import { Moon, SunMoon , SettingsIcon} from "lucide-react";
 import { GithubIcon } from "@/icons/GitHubIcon";
+import Link from "next/link";
+
+
+const iconStyle =" h-10 w-10 flex items-center justify-center p-2 cursor-pointer rounded-full transition hover:bg-containerHover hover:text-secondary";
 
 export default function Header() {
   let header = <div></div>;
@@ -12,15 +16,20 @@ export default function Header() {
   
   if(user) {
       header= 
-      <div>
-        Wilkommen {user.email}!
-      </div>;
+      <>
+      <h4>
+        Wilkommen {user?.email}!
+      </h4>
+      <Link href="/Settings" className={iconStyle}>
+         <SettingsIcon/>
+      </Link>
+      </>;
   } else {
       header= 
       <>
         <h3 className="font-bold"> Willkommen bei TempCheck!</h3>
         <a href="https://github.com/AlexDerAndros/temperature-checker"
-        className="h-10 w-10 flex items-center justify-center p-2 cursor-pointer rounded-full transition hover:bg-containerHover hover:text-secondary">
+        className={iconStyle}>
           <GithubIcon/>
         </a>
       </>;
@@ -28,7 +37,7 @@ export default function Header() {
   return (
     <header className="w-full flex flex-row items-center justify-between px-5">
      <span
-       className="h-10 w-10 flex items-center justify-center p-2 cursor-pointer rounded-full transition hover:bg-containerHover hover:text-secondary"
+       className={iconStyle}
        onClick={toggleTheme} 
      >
        {darkMode ? <Moon size={25} /> : <SunMoon size={25} />}
