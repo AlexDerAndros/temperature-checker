@@ -20,14 +20,14 @@ export default function Header() {
       <h4>
         Wilkommen {user?.email}!
       </h4>
-      <Link href="/Settings" className={iconStyle}>
+      <Link href="/einstellungen" className={iconStyle}>
          <SettingsIcon/>
       </Link>
       </>;
   } else {
       header= 
       <>
-        <h3 className="font-bold"> Willkommen bei TempCheck!</h3>
+        <h5 className="font-bold text-lg md:text-xl"> Willkommen bei TempCheck!</h5>
         <a href="https://github.com/AlexDerAndros/temperature-checker"
         className={iconStyle}>
           <GithubIcon/>

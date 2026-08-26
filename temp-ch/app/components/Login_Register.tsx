@@ -26,6 +26,7 @@ export function Login({ onClick }: BackButtonType) {
   const {
     emailInput,
     passwordInput,
+    error,
     setEmailInput,
     setPasswordInput,
     SignIn,
@@ -84,6 +85,9 @@ export function Login({ onClick }: BackButtonType) {
     
       <Button type="submit" text="Einloggen"  />
       <GoogleLogin />
+      <div className="text-warm font-bold">
+         {error}
+      </div>
     </form>
     </div>
     </div>
@@ -97,6 +101,7 @@ export function Register({ onClick }: BackButtonType) {
   const {
     emailInput,
     passwordInput,
+    error,
     setEmailInput,
     setPasswordInput,
     CreateUser
@@ -171,6 +176,9 @@ export function Register({ onClick }: BackButtonType) {
             disabled={!agreedToTerms} 
           />
           <GoogleLogin />
+          <div className="text-warm font-bold">
+            {error}
+         </div>
         </form>
       </div>
     </div>

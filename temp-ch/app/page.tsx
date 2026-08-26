@@ -245,7 +245,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
   <div className={`min-h-screen flex items-center justify-center ${container}`}>
         <p className="animate-pulse">Lade Status...</p>
     </div>): (
-  <Link href="/Dashboard" className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-screen p-5`} >
+  <Link href="/dashboard" className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-screen p-5`} >
      <h3 className={`font-bold ${transition}  `}>Liniendiagram der letzten 2 Stunden <span className="text-sm text-tertiary">(zuletzt aktualisiert vor {difference} {typeDifference})</span> </h3>
      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={temperatures}>
@@ -269,7 +269,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
 
   {/* Sidebar / rechte Cards */}
   <aside  className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
-  <Link href="/Warnings" className="w-[45%] md:w-auto">
+  <Link href="/warnungen" className="w-[45%] md:w-auto">
     <section className={`${container} w-full rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden
       
@@ -282,7 +282,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
       </div>
     </section>
     </Link>
-    <Link href="/Sensors" className="w-[45%] md:w-auto">
+    <Link href="/sensoren" className="w-[45%] md:w-auto">
      <section className={`${container} w-full  rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Aktive Sensoren </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
