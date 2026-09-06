@@ -51,7 +51,7 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
     return <Register onClick={() => setView("landing")} />;
   } else {
    return (
-    <div className="w-screen flex justify-center items-center flex-col mb-5">
+    <div className="w-full flex justify-center items-center flex-col mb-5">
       
       <main className="w-4/5 flex flex-col gap-y-7 mt-7">
         <section className={`${padding} ${container} ${hover} ${transition} max-w-4xl mx-auto my-8`}>
@@ -78,7 +78,7 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
           </div>
 
           {/* Slider & Skala */}
-          <div className="w-full max-w-xs space-y-2">
+          <div className="w-full  space-y-2">
             {/**Schieberegler wird mit weiteren Attributen deklariert  */}
             <input 
               type="range" 
@@ -235,17 +235,17 @@ function Homepage({container, hover, transition}:HomepageProps) {
   
   return (
    <>
-  <h2 className={`w-screen mt-5 flex flex-col items-center justify-center font-bold  ${transition} hover:text-secondary `}>
+  <h2 className={`w-full mt-5 flex flex-col items-center justify-center font-bold  ${transition} hover:text-secondary `}>
     Temperatur Dashboard von Zimmer 1
   </h2>
-  <main className={`w-screen flex flex-col md:flex-row md:gap-5  justify-center items-center gap-5 my-7 px-5 md:px-10 lg:px-20 `}>
+  <main className={`w-full flex flex-col md:flex-row md:gap-5  justify-center items-center gap-5 my-7 px-5 md:px-10 lg:px-20 `}>
    <Button text="Ausloggen" onClick={SignOut}/>
   {/* Haupt-Card */}
   {loading == true ? (
   <div className={`min-h-screen flex items-center justify-center ${container}`}>
         <p className="animate-pulse">Lade Status...</p>
     </div>): (
-  <Link href="/dashboard" className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-screen p-5`} >
+  <Link href="/uebersicht" className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-full p-5`} >
      <h3 className={`font-bold ${transition}  `}>Liniendiagram der letzten 2 Stunden <span className="text-sm text-tertiary">(zuletzt aktualisiert vor {difference} {typeDifference})</span> </h3>
      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={temperatures}>
@@ -313,9 +313,10 @@ export default function Home() {
         <p className="animate-pulse">Lade Status...</p>
       </div>
     );
-  } else if(user) {
-    return <Homepage container={container} hover={hover} transition={transition} />
-  } else {
+   } else if(user) {
+     return <Homepage container={container} hover={hover} transition={transition} />
+   } 
+  else {
     return <HomeLandingPage container={container} hover={hover} transition={transition} />;
   }
   

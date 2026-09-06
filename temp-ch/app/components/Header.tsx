@@ -17,9 +17,7 @@ export default function Header() {
   if(user) {
       header= 
       <>
-      <h4>
-        Wilkommen {user?.email}!
-      </h4>
+      <h5 className="font-bold text-lg md:text-xl"> TempCheck</h5>
       <Link href="/einstellungen" className={iconStyle}>
          <SettingsIcon/>
       </Link>

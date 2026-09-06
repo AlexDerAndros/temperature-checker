@@ -28,7 +28,6 @@ export default function RootLayout({
         <AuthProvider>
           <DarkLightProvider>
             <Header />
-            {/* flex-1 dehnt den Inhaltsbereich automatisch aus und schiebt den Footer runter */}
             <main className="flex-1 flex flex-col justify-center">
               {children}
             </main>
