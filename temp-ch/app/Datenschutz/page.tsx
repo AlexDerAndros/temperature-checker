@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link";
 import { BackButton } from "../components/Components";
 

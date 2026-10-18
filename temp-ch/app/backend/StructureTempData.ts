@@ -6,7 +6,7 @@ const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
-// Interface um sensor_id erweitern
+
 interface TemperatureData {
     sensor_id: string;
     device: string;

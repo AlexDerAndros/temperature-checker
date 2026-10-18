@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       case "auth/unauthorized-domain":
         setError("Diese Seite ist für ein Google-Login nicht autorisiert!");  
         break;    
-        default:
+      default:
         setError(e.message || "Google Login fehlgeschlagen.");
         break;
     }
