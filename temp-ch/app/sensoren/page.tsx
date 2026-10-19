@@ -1,18 +1,21 @@
 "use client"
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
-import { getRole } from "@/backend/getFrontend"; // Passe den Pfad bei Bedarf an
+import { getRole } from "@/backend/getFrontend"; 
 
 export default function Sensors() {
     const { user } = useAuth();
+    const [test, setTest] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const checkIsAdmin = async () => {
+            
             if (user && user.email) {
                 try {
                     const role = await getRole(user.email);
+                    setTest(role);
                     if(role == "admin" || role == "Admin") {
                         setIsAdmin(true);
                     }
@@ -33,7 +36,7 @@ export default function Sensors() {
         // Korrigiert: h-screen statt h-sceen, top-16 statt top-15
         <div className="w-full h-screen fixed top-16 left-0 bg-inherit overflow-y-auto">
             <h2 className="w-full flex flex-col items-center font-bold pt-4">
-                <span>Sensoren</span>
+                <span>Sensoren  {test}</span>
             </h2>
             <main className="p-4">
                 {loading ? (
@@ -45,7 +48,9 @@ export default function Sensors() {
                         </p>
                         <p className="font-semibold">{isAdmin == true ? "Admin-Ansicht" : "User-Ansicht"}</p>
                         <div className="mt-4 p-4 border rounded shadow">
-                            1. Sensor
+                            1. Sensor {isAdmin && (
+                              <> Admin +</>
+                            )}
                         </div>
                     </>
                 )}

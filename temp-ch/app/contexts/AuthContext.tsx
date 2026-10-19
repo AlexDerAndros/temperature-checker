@@ -91,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
     
-    await addUser(userCredential.user.uid, userCredential.user.email);
+    await addUser( userCredential.user.email);
   } catch (e: any) {
     
     switch (e.code) {
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   try {
     const result = await signInWithPopup(auth, GoogleLogin);
-    await addUser(result.user.uid, result.user.email);
+    await addUser( result.user.email);
   } catch (e: any) {
     switch (e.code) {
       case "auth/popup-closed-by-user":
