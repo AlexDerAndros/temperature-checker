@@ -35,7 +35,7 @@ export function Input({
       value={value}
       placeholder={placeholder}
       onChange={(e) => setValue(e.target.value)}
-      className={`text-md px-4 py-2 rounded-lg 
+      className={`text-md px-4 py-2 rounded-lg bg-btn
         outline-none focus:ring-2 focus:ring-blue-500
         ${container} ${transition} ${passwordPadding} ${addStyle}`} 
     />
@@ -87,7 +87,7 @@ type BackButton = {
 export function BackButton({ onClick, addStyle = "" }: BackButton) { // <-- Default "" hinzugefügt
   const transition = "transition-alternate duration-300";
   return (
-   <div className="w-full absolute top-[7%] left-0"> 
+   <div className="w-1/3 absolute top-[7%] left-0"> 
     <button 
       type="button" 
       onClick={onClick}

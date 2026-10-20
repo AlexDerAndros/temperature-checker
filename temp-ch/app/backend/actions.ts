@@ -31,3 +31,32 @@ export const addUser = async (email: string | null): Promise<{ success: boolean;
     return { success: false, error: "Datenbankfehler" };
   }
 };
+
+export const addSensor = async (room: string, sensorId: string, email: string) => {
+    try {
+        
+        if (!room || !room.trim() || !sensorId || !sensorId.trim() || !email || !email.trim()) {
+            return { success: false, error: "Alle Felder müssen ausgefüllt werden." };
+        }
+
+        const sensorRef = dbAdmin.collection("sensors").doc(sensorId.trim());
+        const doc = await sensorRef.get();
+
+        if (doc.exists) {
+            return { success: false, error: "Sensor-ID existiert bereits." };
+        }
+
+        await sensorRef.set({
+            room: room.trim(), 
+            sensorId: sensorId.trim(),
+            user: email.trim(),
+            active: true,
+            lastSeen: new Date().toISOString()
+        });
+
+        return { success: true };
+    } catch (e) {
+        console.error("Fehler beim Hinzufügen des Sensors:", e);
+        return { success: false, error: "Datenbankfehler" };
+    }
+};
