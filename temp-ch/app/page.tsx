@@ -11,6 +11,7 @@ import  Link  from "next/link";
 // Database and Authentification
 import {db} from './config/firebaseClient';
 import { onSnapshot, collection } from "firebase/firestore";
+import { getOwnSensors } from "./backend/getFrontend";
 
 //Components Import
 import { Login, Register } from "./components/Login_Register";
@@ -159,11 +160,13 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
 
 function Homepage({container, hover, transition}:HomepageProps) {
   
+  const [ownSensors, setOwnSensors] = useState<any[]>([]);
   const[temperatures, setTemperatures] = useState<any[]>([]);
   const[difference, setDifference] = useState(0);
   const[typeDifference, setTypeDifference] = useState("");
   const[loading, setLoading] = useState(false);
   const {user, SignOut} = useAuth();
+ 
 
   const[current, setCurrent] = useState("bg-normal");
 
@@ -232,6 +235,26 @@ function Homepage({container, hover, transition}:HomepageProps) {
 
   return () => getTemperatures();
 }, []);
+
+      useEffect(() => {
+          const initData = async () => {
+              if (user && user.email) {
+                  try {
+                     
+                      const ownRes = await getOwnSensors(user.email);
+                      if (ownRes.success) setOwnSensors(ownRes.ownSensors);
+                  } catch (error) {
+                      console.error("Fehler beim Laden:", error);
+                  } finally {
+                      setLoading(false);
+                  }
+              } else {
+                  setLoading(false);
+              }
+          };
+  
+          initData();
+      }, [user]);
   
   return (
    <>
@@ -271,7 +294,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
   <aside  className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
   <Link href="/warnungen" className="w-[45%] md:w-auto">
     <section className={`${container} w-full rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
-      <h3 className={`font-bold `}>Warnungen in den letzen 24 Stunden
+      <h3 className={`font-bold `}>Warnungen 
       
       </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
@@ -286,7 +309,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
      <section className={`${container} w-full  rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
       <h3 className={`font-bold `}>Aktive Sensoren </h3>
       <div className="text-2xl flex flex-row items-center gap-2">
-        <span>0</span> 
+        <span>{ownSensors.length}</span> 
         {/*Ändern */}
          <div className={`w-5 h-5 md:w-7 md:h-7 bg-warm  rounded-full aniTemp`}>
           </div>
