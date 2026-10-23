@@ -165,10 +165,16 @@ function Homepage({container, hover, transition}:HomepageProps) {
   const[difference, setDifference] = useState(0);
   const[typeDifference, setTypeDifference] = useState("");
   const[loading, setLoading] = useState(false);
+  const[sensorColor, setSensorColor] = useState("");
   const {user, SignOut} = useAuth();
  
+  const [mounted, setMounted] = useState(false);
 
-  const[current, setCurrent] = useState("bg-normal");
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+
 
   useEffect(() => {
   const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
@@ -242,7 +248,14 @@ function Homepage({container, hover, transition}:HomepageProps) {
                   try {
                      
                       const ownRes = await getOwnSensors(user.email);
-                      if (ownRes.success) setOwnSensors(ownRes.ownSensors);
+                      let newArray: any[] = [];
+                      if (ownRes.success) newArray = ownRes.ownSensors;
+                       if(newArray.length <= 0) {
+                         setSensorColor("bg-warm");
+                     } else {
+                        setSensorColor("bg-normal");
+                     }
+                     setOwnSensors(newArray);
                   } catch (error) {
                       console.error("Fehler beim Laden:", error);
                   } finally {
@@ -252,12 +265,12 @@ function Homepage({container, hover, transition}:HomepageProps) {
                   setLoading(false);
               }
           };
-  
+           
           initData();
       }, [user]);
   
   return (
-   <>
+   <div className="overflow-x-hidden">
   <h2 className={`w-full mt-5 flex flex-col items-center justify-center font-bold  ${transition} hover:text-secondary `}>
     Temperatur Dashboard von Zimmer 1
   </h2>
@@ -269,7 +282,14 @@ function Homepage({container, hover, transition}:HomepageProps) {
         <p className="animate-pulse">Lade Status...</p>
     </div>): (
   <Link href="/uebersicht" className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-full p-5`} >
-     <h3 className={`font-bold ${transition}  `}>Liniendiagram der letzten 2 Stunden <span className="text-sm text-tertiary">(zuletzt aktualisiert vor {difference} {typeDifference})</span> </h3>
+    <h3 className={`font-bold ${transition}`}>
+    Liniendiagram der letzten 2 Stunden{' '}
+    {mounted && (
+        <span className="text-sm text-tertiary">
+            (zuletzt aktualisiert vor {difference} {typeDifference})
+        </span>
+    )}
+</h3>
      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={temperatures}>
          <XAxis dataKey="onlyTime" 
@@ -311,7 +331,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
       <div className="text-2xl flex flex-row items-center gap-2">
         <span>{ownSensors.length}</span> 
         {/*Ändern */}
-         <div className={`w-5 h-5 md:w-7 md:h-7 bg-warm  rounded-full aniTemp`}>
+         <div className={`w-5 h-5 md:w-7 md:h-7 ${sensorColor}  rounded-full aniTemp`}>
           </div>
       </div>
     </section>
@@ -319,7 +339,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
   </aside>
 
 </main>
-    </> 
+    </div> 
   );
 }
 

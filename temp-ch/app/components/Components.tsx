@@ -79,26 +79,26 @@ export function Button({
 }
 
 // Back-Button
-type BackButton = {
+type BackButtonProps = {
   onClick?: () => void;
   addStyle?: string;
 };
 
-export function BackButton({ onClick, addStyle = "" }: BackButton) { // <-- Default "" hinzugefügt
-  const transition = "transition-alternate duration-300";
+export function BackButton({ onClick, addStyle = "" }: BackButtonProps) {
+  const transition = "transition-all duration-300";
   return (
-   <div className="w-1/3 absolute top-[7%] left-0"> 
-    <button 
-      type="button" 
-      onClick={onClick}
-      className={`${transition} hover:opacity-90 cursor-pointer
-        flex items-center justify-center font-bold gap-2
-        text-md lg:text-lg px-6 py-2 rounded-lg bg-warm hover:bg-red-600
-         text-inverse ${addStyle} `}
-        >
-      <ArrowLeft className="h-5 w-5" />
-      <span>Zurück</span>
-    </button>
+    <div className={`inline-block ${addStyle}`}> 
+      <button 
+        type="button" 
+        onClick={onClick}
+        className={`${transition} hover:opacity-90 cursor-pointer
+          flex items-center justify-center font-bold gap-2
+          text-sm lg:text-md px-4 py-2 rounded-lg bg-warm hover:bg-red-600
+          text-inverse shadow-md`}
+      >
+        <ArrowLeft className="h-5 w-5" />
+        <span>Zurück</span>
+      </button>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { dbAdmin } from "../config/firebaseServer";
 
+//Login
 export const addUser = async (email: string | null): Promise<{ success: boolean; error?: string }> => {
   // Wenn keine E-Mail übergeben wurde, brechen wir direkt ab
   if (!email) {
@@ -32,6 +33,7 @@ export const addUser = async (email: string | null): Promise<{ success: boolean;
   }
 };
 
+//Sensoren
 export const addSensor = async (room: string, sensorId: string, email: string) => {
     try {
         
@@ -60,3 +62,13 @@ export const addSensor = async (room: string, sensorId: string, email: string) =
         return { success: false, error: "Datenbankfehler" };
     }
 };
+
+export const deleteSensor = async(sensorId: string) => {
+  try {
+    const sensorRef =  dbAdmin.collection("sensors").doc(sensorId).delete();
+    
+    return { success: true };
+  }catch(e) {
+    return { success: false, error: "Datenbankfehler" };
+  }
+}
