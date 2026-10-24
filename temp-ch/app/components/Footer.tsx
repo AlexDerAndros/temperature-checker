@@ -12,13 +12,13 @@ export default function Footer() {
 
         <div className="flex gap-x-6 text-xs font-medium">
           <Link 
-            href="/impressum" 
+            href="/Impressum" 
             className="hover:text-white transition-colors duration-200 py-1"
           >
             Impressum
           </Link>
           <Link 
-            href="/datenschutz" 
+            href="/Datenschutz" 
             className="hover:text-white transition-colors duration-200 py-1"
           >
             Datenschutz
