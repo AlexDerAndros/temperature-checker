@@ -156,17 +156,19 @@ export default function Sensors() {
     
     // GSAP Fly-Away Lösch-Animation
     const handleDeleteSensor = async (sensorId: string) => {
-        const cardElement = sensorRefs.current[sensorId];
+    const cardElement = sensorRefs.current[sensorId];
 
-        if (cardElement) {
-            // GSAP Animation: Fliegt nach rechts weg und schrumpft aus
-            gsap.to(cardElement, {
-                x: 100,
-                opacity: 0,
-                scale: 0.9,
-                duration: 0.3,
-                ease: "power2.in",
-                onComplete: async () => {
+    if (cardElement) {
+        // GSAP Animation: Fliegt nach rechts weg und schrumpft aus
+        gsap.to(cardElement, {
+            x: 100,
+            opacity: 0,
+            scale: 0.9,
+            duration: 0.3,
+            ease: "power2.in",
+            onComplete: () => {
+                // Async-Logik hier kapseln, damit onComplete kein Promise zurückgibt
+                (async () => {
                     try {
                         const result = await deleteSensor(sensorId);
                         if (result?.success) {
@@ -175,14 +177,16 @@ export default function Sensors() {
                     } catch (e) {
                         console.error(e);
                     }
-                }
-            });
-        } else {
-            // Fallback falls Ref nicht greift
-            const result = await deleteSensor(sensorId);
-            if (result?.success) initData();
-        }
-    };
+                })();
+            }
+        });
+    } else {
+        // Fallback falls Ref nicht greift
+        const result = await deleteSensor(sensorId);
+        if (result?.success) initData();
+    }
+};
+
     
     const displayedSensors = isAdmin && viewMode === 'all' ? allSensors : ownSensors;
     
