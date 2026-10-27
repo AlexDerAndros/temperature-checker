@@ -18,22 +18,33 @@ interface TemperatureData {
 const addTempData = async (sensorId: string, temp: number, hum: number) => {
     try {
         const timestampMs = Date.now(); 
-        const isoTime = new Date().toISOString(); 
         
-        // 1.Funktion
+        // Erzeugt den formatierten deutschen Zeitstring für MEZ/MESZ
+        const germanTime = new Intl.DateTimeFormat('de-DE', {
+            timeZone: 'Europe/Berlin',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).format(new Date());
+        
+        // 1. Funktion (Temperatur-Messwert speichern)
         const docRef = await dbAdmin.collection("temperatures").add({
             sensorId: sensorId,
             temperature: temp,
             humidity: hum, 
             timestamp: timestampMs, 
-            datePlusTime: new Date().toLocaleString("de-DE", { timeZone: "Europe/Berlin" })
+            datePlusTime: germanTime
         });
 
-        //2.Funktion
+        // 2. Funktion (Sensor Status & lastSeen aktualisieren)
         const sensorRef = dbAdmin.collection("sensors").doc(sensorId);
         await sensorRef.set({
-            lastSeen: isoTime,
-            active: true // Wenn er daten sendet, ist er aktiv
+            lastSeen: germanTime, // Aktualisiert sich bei jeder Messung auf die aktuelle deutsche Zeit
+            active: true // Wenn er Daten sendet, ist er aktiv
         }, { merge: true });
 
         console.log(`Sensor ${sensorId} - lastSeen erfolgreich aktualisiert.`);

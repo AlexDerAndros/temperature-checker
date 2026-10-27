@@ -335,7 +335,7 @@ export default function Sensors() {
                                         <p className="text-xs sm:text-sm text-gray-400 font-mono truncate">ID: {sensor.sensorId}</p>
                                         <p className="text-[11px] sm:text-xs text-gray-500 truncate">User: {sensor.user}</p>
                                         <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
-                                            Letztes Signal: {sensor.lastSeen ? new Date(sensor.lastSeen).toISOString().slice(11, 19) : "Unbekannt"}
+                                           Letztes Signal: {sensor.lastSeen ? sensor.lastSeen : "Unbekannt"} 
                                         </p>
                                     </div>
                                 </div>

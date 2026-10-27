@@ -36,7 +36,6 @@ export const addUser = async (email: string | null): Promise<{ success: boolean;
 //Sensoren
 export const addSensor = async (room: string, sensorId: string, email: string) => {
     try {
-        
         if (!room || !room.trim() || !sensorId || !sensorId.trim() || !email || !email.trim()) {
             return { success: false, error: "Alle Felder müssen ausgefüllt werden." };
         }
@@ -48,12 +47,24 @@ export const addSensor = async (room: string, sensorId: string, email: string) =
             return { success: false, error: "Sensor-ID existiert bereits." };
         }
 
+        // Erzeugt einen sauberen lesbaren Zeitstempel in deutscher Ortszeit (MEZ/MESZ)
+        const nowInGermany = new Intl.DateTimeFormat('de-DE', {
+            timeZone: 'Europe/Berlin',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).format(new Date());
+
         await sensorRef.set({
             room: room.trim(), 
             sensorId: sensorId.trim(),
             user: email.trim(),
             active: true,
-            lastSeen: new Date().toISOString()
+            lastSeen: nowInGermany // Direkt lesbar als "TT.MM.JJJJ, HH:MM:SS"
         });
 
         return { success: true };
@@ -65,8 +76,7 @@ export const addSensor = async (room: string, sensorId: string, email: string) =
 
 export const deleteSensor = async(sensorId: string) => {
   try {
-    const sensorRef =  dbAdmin.collection("sensors").doc(sensorId).delete();
-    
+    await dbAdmin.collection("sensors").doc(sensorId).delete();
     return { success: true };
   }catch(e) {
     return { success: false, error: "Datenbankfehler" };
