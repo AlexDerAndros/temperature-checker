@@ -15,7 +15,7 @@ const inputStyle = "w-full relative";
 
 const Image = () => (
   <img src="/images/Login_Register.png"
-       className="w-[90%] md:w-[40%] object-cover rounded-lg"
+       className="w-[90%] md:w-[40%] object-cover rounded-lg mt-2"
        alt=""/>
 );
 
@@ -118,6 +118,7 @@ export function Register({ onClick }: BackButtonType) {
   return (
     <div className={mainWrapperStyle}>
       <BackButton onClick={onClick} />
+      
       <div className={imgConStyle}>
         <Image />
         <form onSubmit={handleRegister} className={formStyle}>

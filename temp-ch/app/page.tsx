@@ -166,7 +166,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
   const[typeDifference, setTypeDifference] = useState("");
   const[loading, setLoading] = useState(false);
   const[sensorColor, setSensorColor] = useState("");
-  const {user, SignOut} = useAuth();
+  const {user} = useAuth();
  
   const [mounted, setMounted] = useState(false);
 
@@ -275,7 +275,7 @@ function Homepage({container, hover, transition}:HomepageProps) {
     Temperatur Dashboard von Zimmer 1
   </h2>
   <main className={`w-full flex flex-col md:flex-row md:gap-5  justify-center items-center gap-5 my-7 px-5 md:px-10 lg:px-20 `}>
-   <Button text="Ausloggen" onClick={SignOut}/>
+  
   {/* Haupt-Card */}
   {loading == true ? (
   <div className={`min-h-screen flex items-center justify-center ${container}`}>

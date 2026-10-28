@@ -19,7 +19,9 @@ export const addUser = async (email: string | null): Promise<{ success: boolean;
       await userRef.set({
         email: email,
         role: "user", // Standardrolle
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(), 
+        highestTemp: 30,
+        lowestTemp: 0
       });
       console.log("Neuer User in Firestore angelegt:", email);
     } else {
@@ -82,3 +84,25 @@ export const deleteSensor = async(sensorId: string) => {
     return { success: false, error: "Datenbankfehler" };
   }
 }
+
+//Einstellungen aktualisieren
+
+export const updateSetting = async (email: string, highTemp: string | number, lowTemp: string | number) => {
+  try {
+    const userRef = dbAdmin.collection("users").doc(email);
+    
+    const newSettings = {
+        highestTemp: Number(highTemp),
+        lowestTemp: Number(lowTemp)
+    };
+
+    await userRef.update(newSettings);
+    
+    console.log(`Einstellungen für ${email} erfolgreich aktualisiert.`);
+    return { success: true };
+    
+  } catch (e) {
+    console.error("Fehler beim Aktualisieren der Einstellungen:", e);
+    return { success: false, error: e };
+  }
+};

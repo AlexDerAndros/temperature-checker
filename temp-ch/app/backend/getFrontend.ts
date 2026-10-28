@@ -47,3 +47,20 @@ export const getAllSensors = async () => {
         return { success: false, error: "Datenbankfehler", allSensors: [] };
     }
 };
+
+//Einstellungen bekommen
+export const getSettings = async (email: string) => {
+    try {
+        const docRef = await dbAdmin.collection("users").doc(email).get();
+
+        if (!docRef.exists) {
+            return { success: false, error: "Keine Einstellungen gefunden" };
+        }
+        const settings = docRef.data();
+
+        return { success: true, settings };
+    } catch (e) {
+        console.error("Fehler beim Abrufen der Einstellungen:", e);
+        return { success: false, error: e };
+    }
+};
