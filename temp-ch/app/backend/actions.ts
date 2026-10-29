@@ -87,7 +87,7 @@ export const deleteSensor = async(sensorId: string) => {
 
 //Einstellungen aktualisieren
 
-export const updateSetting = async (email: string, highTemp: string | number, lowTemp: string | number) => {
+export const updateSettings = async (email: string, highTemp: string | number, lowTemp: string | number) => {
   try {
     const userRef = dbAdmin.collection("users").doc(email);
     
