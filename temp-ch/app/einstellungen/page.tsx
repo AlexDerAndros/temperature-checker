@@ -1,29 +1,29 @@
 "use client";
 import Link from "next/link";
-import { X, User, ShieldCheck, Thermometer, Sliders, Edit3 } from "lucide-react";
+import { X, User, ShieldCheck, Thermometer, Sliders, Edit3, LogOut } from "lucide-react";
 import { BackButton } from "@/components/Components";
 import { useState, useEffect, useRef } from "react";
 import { Input, Button } from "@/components/Components";
 import { getSettings } from "@/backend/getFrontend";
 import { updateSettings } from "@/backend/actions";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDarkLight } from "@/contexts/DarkLightContext";
 import { gsap } from "gsap";
 
 export default function Settings() {
     const { user, SignOut } = useAuth();
+    const { container, containerHover } = useDarkLight();
     const [low, setLow] = useState("");
     const [high, setHigh] = useState("");
     const [editMode, setEditMode] = useState(false);
     const [userInfos, setUserInfos] = useState<any>(null);
     
-    // States für Error Handling & Feedback im UI
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     const pageRef = useRef<HTMLDivElement>(null);
 
-    // GSAP Eingangs-Animation für die gesamte Seite
     useEffect(() => {
         if (pageRef.current) {
             gsap.fromTo(
@@ -71,7 +71,6 @@ export default function Settings() {
     const handleUpdateUserInfos = async () => {
         if (!user || !user.email) return;
 
-        // Einfache Validierung vorab
         if (high === "" || low === "") {
             setErrorMsg("Bitte fülle beide Temperaturfelder aus.");
             return;
@@ -93,10 +92,8 @@ export default function Settings() {
                 await getUserInfos();
                 switchEditMode();
                 
-                
                 setTimeout(() => setSuccessMsg(null), 3000);
             } else {
-               
                 const errString = typeof result?.error === "string" 
                     ? result.error 
                     : (result?.error instanceof Error ? result.error.message : "Fehler beim Speichern der Daten.");
@@ -104,7 +101,6 @@ export default function Settings() {
             }
         } catch (e: unknown) {
             console.error("Fehler beim Update:", e);
-            // Auch hier fangen wir den catch-Fehler als String ab
             const errorMessage = e instanceof Error ? e.message : "Ein unerwarteter Fehler ist aufgetreten.";
             setErrorMsg(errorMessage);
         }
@@ -135,8 +131,8 @@ export default function Settings() {
             {/* Vollwertiger Seiten-Container */}
             <main className="w-full max-w-2xl flex flex-col gap-6">
                 
-                {/* Seiten-Titel & Ausloggen */}
-                <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-5">
+                {/* Seiten-Titel */}
+                <div className="flex items-center justify-between border-b border-secondary/20 pb-5">
                     <div className="flex items-center gap-3">
                         <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-500">
                             <Sliders size={26} />
@@ -146,11 +142,6 @@ export default function Settings() {
                             <p className="text-sm text-secondary">Konfiguriere deine Account- und Schwellenwerte</p>
                         </div>
                     </div>
-                    <Button 
-                        text="Ausloggen" 
-                        onClick={SignOut} 
-                        addStyle="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all" 
-                    />
                 </div>
 
                 {/* Globales Error- oder Erfolgs-Feedback */}
@@ -167,7 +158,7 @@ export default function Settings() {
 
                 {/* Profil-Info */}
                 <div className="flex items-center gap-4 py-2">
-                    <div className="p-3 rounded-full  dark:bg-slate-600 text-primary">
+                    <div className={`p-3 rounded-full ${container}`}>
                         <User size={24} />
                     </div>
                     <div className="flex flex-col">
@@ -185,7 +176,7 @@ export default function Settings() {
                     <div className="flex flex-col gap-6">
                         
                         {/* Rolle */}
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-800">
+                        <div className={`flex items-center justify-between p-4 rounded-2xl ${container} border border-secondary/10`}>
                             <div className="flex items-center gap-2 text-sm text-secondary">
                                 <ShieldCheck size={20} className="text-indigo-500" />
                                 <span>Berechtigungs-Rolle</span>
@@ -193,6 +184,16 @@ export default function Settings() {
                             <span className="font-semibold text-sm px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500">
                                 {userInfos.role === "admin" ? "Admin" : "Benutzer"}
                             </span>
+                        </div>
+                        {/* Ausloggen Sektion */}
+                        <div className="  flex flex-col gap-3">
+                            <button 
+                                onClick={SignOut}
+                                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer shadow-sm"
+                            >
+                                <LogOut size={18} />
+                                Ausloggen
+                            </button>
                         </div>
 
                         {/* Schwellenwerte Sektion */}
@@ -215,19 +216,29 @@ export default function Settings() {
                             </div>
 
                             {editMode ? (
-                                <div className="flex flex-col gap-4 p-6 rounded-3xl border border-indigo-500/40 bg-indigo-500/5 shadow-inner">
+                                <div className={`flex flex-col gap-5 p-6 rounded-3xl border border-indigo-500/40 bg-indigo-500/5 shadow-inner ${container}`}>
                                     <span className="text-xs font-semibold text-indigo-500 uppercase tracking-wider">Bearbeitungsmodus aktiv</span>
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex-grow">
-                                            <Input type="number" value={high} placeholder="Höchste Temperatur" setValue={setHigh} />
+                                    
+                                    {/* Eingabefeld 1: Höchste Temperatur mit klarem Label */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-medium text-secondary">Neue höchste Temperatur (Max-Limit)</label>
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex-grow">
+                                                <Input type="number" value={high} placeholder="z.B. 30" setValue={setHigh} />
+                                            </div>
+                                            <span className="font-bold text-lg">°C</span>
                                         </div>
-                                        <span className="font-bold text-lg">°C</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex-grow">
-                                            <Input type="number" value={low} placeholder="Niedrigste Temperatur" setValue={setLow} />
+
+                                    {/* Eingabefeld 2: Niedrigste Temperatur mit klarem Label */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-medium text-secondary">Neue niedrigste Temperatur (Min-Limit)</label>
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex-grow">
+                                                <Input type="number" value={low} placeholder="z.B. 15" setValue={setLow} />
+                                            </div>
+                                            <span className="font-bold text-lg">°C</span>
                                         </div>
-                                        <span className="font-bold text-lg">°C</span>
                                     </div>
 
                                     {/* Action Buttons */}
@@ -239,7 +250,7 @@ export default function Settings() {
                                         />
                                         <button 
                                             onClick={switchEditMode}
-                                            className="p-3 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                                            className={`p-3 rounded-xl border border-secondary/20 ${containerHover} transition cursor-pointer`}
                                             aria-label="Abbrechen"
                                         >
                                             <X size={20} />
@@ -248,21 +259,23 @@ export default function Settings() {
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-800 flex flex-col gap-1 shadow-sm">
+                                    <div className={`p-5 rounded-2xl ${container} border border-secondary/10 flex flex-col gap-1 shadow-sm`}>
                                         <span className="text-xs text-secondary">Maximales Limit</span>
-                                        <span className="font-extrabold text-2xl text-red-500">
+                                        <span className="font-extrabold text-2xl text-warm">
                                             {userInfos.highestTemp !== undefined ? `${userInfos.highestTemp}°C` : "Nicht gesetzt"}
                                         </span>
                                     </div>
-                                    <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-800 flex flex-col gap-1 shadow-sm">
+                                    <div className={`p-5 rounded-2xl ${container} border border-secondary/10 flex flex-col gap-1 shadow-sm`}>
                                         <span className="text-xs text-secondary">Minimales Limit</span>
-                                        <span className="font-extrabold text-2xl text-blue-500">
+                                        <span className="font-extrabold text-2xl text-cold">
                                             {userInfos.lowestTemp !== undefined ? `${userInfos.lowestTemp}°C` : "Nicht gesetzt"}
                                         </span>
                                     </div>
                                 </div>
                             )}
                         </div>
+
+                      
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">

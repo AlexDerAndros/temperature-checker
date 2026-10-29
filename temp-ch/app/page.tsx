@@ -19,8 +19,7 @@ import { Button } from "./components/Components";
 //Contexts
 import { useDarkLight } from "./contexts/DarkLightContext";
 import { useAuth } from "./contexts/AuthContext";
-
-
+import { Activity, AlertTriangle, Cpu, TrendingUp } from "lucide-react";
 
 
 type HomepageProps = {
@@ -158,191 +157,239 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
   }
 }
 
-function Homepage({container, hover, transition}:HomepageProps) {
-  
+
+ function Homepage({ container, hover, transition }: HomepageProps) {
   const [ownSensors, setOwnSensors] = useState<any[]>([]);
-  const[temperatures, setTemperatures] = useState<any[]>([]);
-  const[difference, setDifference] = useState(0);
-  const[typeDifference, setTypeDifference] = useState("");
-  const[loading, setLoading] = useState(false);
-  const[sensorColor, setSensorColor] = useState("");
-  const {user} = useAuth();
- 
+  const [temperatures, setTemperatures] = useState<any[]>([]);
+  const [difference, setDifference] = useState(0);
+  const [typeDifference, setTypeDifference] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sensorColor, setSensorColor] = useState("");
+  const { user } = useAuth();
+  
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-
-
+  // Temperatur-Daten in Echtzeit über Firestore Snapshot laden
   useEffect(() => {
-  const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
-    // 1. Daten auslesen
-    const datas = snapshot.docs.map(doc => {
-      const data = doc.data();
-      const rawDate = new Date(data.timestamp || Date.now());
-      
-      return {
-        ...data,
-        id: doc.id,
-        timestamp: data.timestamp || Date.now(),
-        onlyTime: rawDate.toLocaleTimeString("de-DE", { hour: '2-digit', minute: '2-digit' })
-      };
-    });
+    const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
+      const datas = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const rawDate = new Date(data.timestamp || Date.now());
+        
+        return {
+          ...data,
+          id: doc.id,
+          timestamp: data.timestamp || Date.now(),
+          onlyTime: rawDate.toLocaleTimeString("de-DE", { hour: '2-digit', minute: '2-digit' })
+        };
+      });
 
-    if (datas.length > 0) {
-      // 2. Sortieren, damit das neueste Element ganz hinten steht
-      datas.sort((a, b) => a.timestamp - b.timestamp);
+      if (datas.length > 0) {
+        datas.sort((a, b) => a.timestamp - b.timestamp);
+        const newestEntry = datas[datas.length - 1];
 
-      // 3. Den neuesten Eintrag greifen (letzter Index im sortierten Array)
-      const newestEntry = datas[datas.length - 1];
+        const timePast = newestEntry.timestamp;
+        const timeNow = Date.now();
+        
+        const diffMs = timeNow - timePast;
+        const difInMin = Math.floor(diffMs / 1000 / 60);
 
-      // 4. Differenz fehlerfrei berechnen
-      const timePast = newestEntry.timestamp; // Das ist jetzt eine saubere Zahl (ms)
-      const timeNow = Date.now(); // Aktuelle Zeit in ms
-      
-      const difference = timeNow - timePast;
-      const difInMin = Math.floor(difference / 1000 / 60);
-
-      // 5. States setzen
-      if(difInMin >= 0) {
-        if(difInMin >= 1440) {
-          const newNumber = Math.floor(difInMin / 60/24);
-          setDifference(newNumber);
-          if( newNumber == 1 ){
-            setTypeDifference("Tag");
+        if (difInMin >= 0) {
+          if (difInMin >= 1440) {
+            const newNumber = Math.floor(difInMin / 60 / 24);
+            setDifference(newNumber);
+            setTypeDifference(newNumber === 1 ? "Tag" : "Tagen");
+          } else if (difInMin < 1440 && difInMin >= 60) {
+            const newNumber = Math.floor(difInMin / 60);
+            setDifference(newNumber);
+            setTypeDifference(newNumber === 1 ? "Stunde" : "Stunden");
           } else {
-            setTypeDifference("Tagen");
+            setDifference(difInMin);
+            setTypeDifference(difInMin === 1 ? "Minute" : "Minuten");
           }
-        } else if(difInMin <= 1440 && difInMin >= 60) {
-          const newNumber = Math.floor(difInMin / 60);
-          setDifference(newNumber);
-          if( newNumber == 1 ){
-            setTypeDifference("Stunde");
-          } else {
-            setTypeDifference("Stunden");
-          }
-        }
-        else {
-          setDifference(difInMin);
-           if( difInMin == 1 ){
-            setTypeDifference("Minute");
-          } else {
-            setTypeDifference("Minuten");
-          } 
         }
       }
-    }
 
-    setLoading(false);
-    setTemperatures(datas);
-  });
+      setTemperatures(datas);
+      setLoading(false);
+    }, (error) => {
+      console.error("Fehler beim Laden der Temperaturen:", error);
+      setLoading(false);
+    });
 
-  return () => getTemperatures();
-}, []);
+    return () => getTemperatures();
+  }, []);
 
-      useEffect(() => {
-          const initData = async () => {
-              if (user && user.email) {
-                  try {
-                     
-                      const ownRes = await getOwnSensors(user.email);
-                      let newArray: any[] = [];
-                      if (ownRes.success) newArray = ownRes.ownSensors;
-                       if(newArray.length <= 0) {
-                         setSensorColor("bg-warm");
-                     } else {
-                        setSensorColor("bg-normal");
-                     }
-                     setOwnSensors(newArray);
-                  } catch (error) {
-                      console.error("Fehler beim Laden:", error);
-                  } finally {
-                      setLoading(false);
-                  }
-              } else {
-                  setLoading(false);
-              }
-          };
-           
-          initData();
-      }, [user]);
-  
+  // Sensoren des Users laden
+  useEffect(() => {
+    const initData = async () => {
+      if (user && user.email) {
+        try {
+          const ownRes = await getOwnSensors(user.email);
+          let newArray: any[] = [];
+          if (ownRes.success) newArray = ownRes.ownSensors;
+          
+          if (newArray.length <= 0) {
+            setSensorColor("bg-warm");
+          } else {
+            setSensorColor("bg-normal");
+          }
+          setOwnSensors(newArray);
+        } catch (error) {
+          console.error("Fehler beim Laden der Sensoren:", error);
+        }
+      }
+    };
+     
+    initData();
+  }, [user]);
+ 
   return (
-   <div className="overflow-x-hidden">
-  <h2 className={`w-full mt-5 flex flex-col items-center justify-center font-bold  ${transition} hover:text-secondary `}>
-    Temperatur Dashboard von Zimmer 1
-  </h2>
-  <main className={`w-full flex flex-col md:flex-row md:gap-5  justify-center items-center gap-5 my-7 px-5 md:px-10 lg:px-20 `}>
-  
-  {/* Haupt-Card */}
-  {loading == true ? (
-  <div className={`min-h-screen flex items-center justify-center ${container}`}>
-        <p className="animate-pulse">Lade Status...</p>
-    </div>): (
-  <Link href="/uebersicht" className={` flex items-center justify-center flex-col gap-3 ${container} rounded-xl ${transition} ${hover} w-4/5 md:h-150 md:w-full p-5`} >
-    <h3 className={`font-bold ${transition}`}>
-    Liniendiagram der letzten 2 Stunden{' '}
-    {mounted && (
-        <span className="text-sm text-tertiary">
-            (zuletzt aktualisiert vor {difference} {typeDifference})
-        </span>
-    )}
-</h3>
-     <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={temperatures}>
-         <XAxis dataKey="onlyTime" 
-                        label={{ value: "Uhrzeit", position: "insideBottom", offset: -5 }}
-          />
-          <YAxis dataKey="temperature" label={{ value: "Temperatur in °C", position: "insideLeft", offset: 1, angle: 270 }} />
-          <Tooltip 
-            labelFormatter={(value, items) => {
-                 // Zeigt im Tooltip beim Hovern das volle Datum anstelle von nur der Uhrzeit
-                 const item = items[0]?.payload;
-                   return item ? `Zeitpunkt: ${item.datePlusTime}` : value;
-                     }}
-               contentStyle={{ color: "black" }}
-             />
-          <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
-         </LineChart> 
-     </ResponsiveContainer>
-  </Link>
-  )}
-
-  {/* Sidebar / rechte Cards */}
-  <aside  className="w-4/5 md:w-1/2 md:h-150 flex flex-row md:flex-col justify-between h-full md:gap-y-3">
-  <Link href="/warnungen" className="w-[45%] md:w-auto">
-    <section className={`${container} w-full rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
-      <h3 className={`font-bold `}>Warnungen 
+    <div className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center px-4 md:px-8 py-6 overflow-x-hidden">
       
-      </h3>
-      <div className="text-2xl flex flex-row items-center gap-2">
-        <span>0</span> 
-        {/*Ändern */}
-         <div className={`w-5 h-5 md:w-7 md:h-7 bg-normal  rounded-full aniTemp`}>
-          </div>
+      {/* Dashboard Header */}
+      <div className="w-full max-w-5xl flex flex-col items-center text-center mb-8">
+        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 text-indigo-500 text-xs font-semibold mb-2">
+          <Activity size={14} />
+          <span>Live-Überwachung</span>
+        </div>
+        <h2 className={`font-extrabold text-2xl md:text-3xl tracking-tight ${transition} hover:text-secondary`}>
+          Temperatur Dashboard von Zimmer 1
+        </h2>
+        <p className="text-sm text-secondary mt-1">Echtzeit-Daten und Sensorstatus im Überblick</p>
       </div>
-    </section>
-    </Link>
-    <Link href="/sensoren" className="w-[45%] md:w-auto">
-     <section className={`${container} w-full  rounded-xl p-5 flex gap-6 flex-col justify-center items-center ${transition} ${hover} `} >
-      <h3 className={`font-bold `}>Aktive Sensoren </h3>
-      <div className="text-2xl flex flex-row items-center gap-2">
-        <span>{ownSensors.length}</span> 
-        {/*Ändern */}
-         <div className={`w-5 h-5 md:w-7 md:h-7 ${sensorColor}  rounded-full aniTemp`}>
-          </div>
-      </div>
-    </section>
-    </Link>
-  </aside>
 
-</main>
+      {/* Haupt-Container */}
+      <main className="w-full max-w-5xl flex flex-col gap-6 items-center">
+        
+        {/* Ladezustand oder Haupt-Card mit Diagramm */}
+        {loading === true ? (
+          <div className={`w-full h-96 flex flex-col items-center justify-center gap-3 rounded-3xl ${container} border border-secondary/10 shadow-sm`}>
+            <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+            <p className="text-secondary text-sm animate-pulse">Lade Status und Messwerte...</p>
+          </div>
+        ) : (
+          <Link 
+            href="/uebersicht" 
+            className={`w-full flex flex-col gap-4 ${container} rounded-3xl border border-secondary/10 ${transition} ${hover} p-6 md:p-8 shadow-sm group cursor-pointer`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-secondary/10 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500">
+                  <TrendingUp size={18} />
+                </div>
+                <h3 className={`font-bold text-base md:text-lg ${transition}`}>
+                  Liniendiagramm der letzten 2 Stunden
+                </h3>
+              </div>
+              {mounted && (
+                <span className="text-xs font-medium px-3 py-1 rounded-full bg-secondary/10 text-secondary w-fit">
+                  Aktualisiert vor {difference} {typeDifference}
+                </span>
+              )}
+            </div>
+
+            {/* Recharts Diagramm */}
+            <div className="w-full h-[280px] md:h-[340px] pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={temperatures} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis 
+                    dataKey="onlyTime" 
+                    stroke="currentColor" 
+                    opacity={0.6}
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    stroke="currentColor" 
+                    opacity={0.6}
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    domain={['auto', 'auto']}
+                  />
+               <Tooltip 
+    labelFormatter={(value, items) => {
+        const item = items[0]?.payload;
+        return item ? `Zeitpunkt: ${item.datePlusTime}` : value;
+    }}
+    formatter={(value: any) => [`${value} °C`, "Temperatur"]}
+    contentStyle={{ 
+        backgroundColor: "var(--color-container)", 
+        borderRadius: "1rem", 
+        border: "1px solid rgba(107, 114, 128, 0.2)",
+        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+        color: "var(--color-primary)"
+    }}
+    itemStyle={{
+        color: "var(--color-primary)",
+        fontWeight: "600"
+    }}
+/>
+                  <Line 
+                    type="monotone" 
+                    dataKey="temperature" 
+                    stroke="#6366f1" 
+                    strokeWidth={3} 
+                    dot={false}
+                    activeDot={{ r: 6, fill: "#6366f1" }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Link>
+        )}
+
+        {/* Sidebar / Untere Info-Cards (Volle Breite im Grid) */}
+        <aside className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          {/* Warnungen Card */}
+          <Link href="/warnungen" className="w-full">
+            <section className={`${container} w-full rounded-3xl border border-secondary/10 p-6 flex items-center justify-between ${transition} ${hover} shadow-sm group cursor-pointer`}>
+              <div className="flex items-center gap-4">
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 text-amber-500 group-hover:scale-110 transition-transform">
+                  <AlertTriangle size={24} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-secondary font-medium">System Status</span>
+                  <h3 className="font-bold text-lg">Warnungen</h3>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-extrabold">0</span>
+                <div className="w-4 h-4 bg-normal rounded-full aniTemp shadow-md shadow-emerald-500/50"></div>
+              </div>
+            </section>
+          </Link>
+
+          {/* Aktive Sensoren Card */}
+          <Link href="/sensoren" className="w-full">
+            <section className={`${container} w-full rounded-3xl border border-secondary/10 p-6 flex items-center justify-between ${transition} ${hover} shadow-sm group cursor-pointer`}>
+              <div className="flex items-center gap-4">
+                <div className="p-3.5 rounded-2xl bg-indigo-500/10 text-indigo-500 group-hover:scale-110 transition-transform">
+                  <Cpu size={24} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-secondary font-medium">Hardware</span>
+                  <h3 className="font-bold text-lg">Aktive Sensoren</h3>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-extrabold">{ownSensors?.length ?? 0}</span>
+                <div className={`w-4 h-4 ${sensorColor} rounded-full aniTemp shadow-md`}></div>
+              </div>
+            </section>
+          </Link>
+
+        </aside>
+
+      </main>
     </div> 
   );
 }
-
 
 export default function Home() {
   const {user, loading} = useAuth();
