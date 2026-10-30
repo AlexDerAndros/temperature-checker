@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 import { X, User, ShieldCheck, Thermometer, Sliders, Edit3, LogOut } from "lucide-react";
 import { BackButton } from "@/components/Components";
 import { useState, useEffect, useRef } from "react";
@@ -11,6 +12,7 @@ import { useDarkLight } from "@/contexts/DarkLightContext";
 import { gsap } from "gsap";
 
 export default function Settings() {
+    const router = useRouter();
     const { user, SignOut } = useAuth();
     const { container, containerHover } = useDarkLight();
     const [low, setLow] = useState("");
@@ -188,7 +190,8 @@ export default function Settings() {
                         {/* Ausloggen Sektion */}
                         <div className="  flex flex-col gap-3">
                             <button 
-                                onClick={() => SignOut()}
+                                onClick={() => {
+                                    SignOut(); router.push("/");}}
                                 className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer shadow-sm"
                             >
                                 <LogOut size={18} />
