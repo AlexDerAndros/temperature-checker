@@ -188,7 +188,7 @@ export default function Settings() {
                         {/* Ausloggen Sektion */}
                         <div className="  flex flex-col gap-3">
                             <button 
-                                onClick={SignOut}
+                                onClick={() => SignOut()}
                                 className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer shadow-sm"
                             >
                                 <LogOut size={18} />
