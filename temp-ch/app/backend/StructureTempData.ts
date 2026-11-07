@@ -31,23 +31,34 @@ const addTempData = async (sensorId: string, temp: number, hum: number) => {
             hour12: false
         }).format(new Date());
         
-        // 1. Funktion (Temperatur-Messwert speichern)
+        const sensorRef = dbAdmin.collection("sensors").doc(sensorId);
+
+        // 1. Zuerst das Sensor-Dokument abrufen, um den zugehörigen User zu finden
+        const sensorDoc = await sensorRef.get();
+        
+        let assignedUser = "unknown";
+        if (sensorDoc.exists) {
+            const sensorData = sensorDoc.data();
+            assignedUser = sensorData?.user || "unknown";
+        } else {
+            console.warn(`Warnung: Keine Zuordnung für Sensor-ID ${sensorId} gefunden.`);
+        }
+
+        // 2. Sensor Status & lastSeen aktualisieren
+        await sensorRef.set({
+            lastSeen: germanTime, // Aktualisiert sich bei jeder Messung auf die aktuelle deutsche Zeit
+            active: true // Wenn er Daten sendet, ist er aktiv
+        }, { merge: true });
+         
+        // 3. Temperatur-Messwert mitsamt dem ermittelten User speichern
         const docRef = await dbAdmin.collection("temperatures").add({
             sensorId: sensorId,
             temperature: temp,
             humidity: hum, 
             timestamp: timestampMs, 
-            datePlusTime: germanTime
+            datePlusTime: germanTime,
+            user: assignedUser
         });
-
-        // 2. Funktion (Sensor Status & lastSeen aktualisieren)
-        const sensorRef = dbAdmin.collection("sensors").doc(sensorId);
-        await sensorRef.set({
-            lastSeen: germanTime, // Aktualisiert sich bei jeder Messung auf die aktuelle deutsche Zeit
-            active: true // Wenn er Daten sendet, ist er aktiv
-        }, { merge: true });
-
-        console.log(`Sensor ${sensorId} - lastSeen erfolgreich aktualisiert.`);
 
         return { success: true, id: docRef.id };
     } catch (e) {
@@ -55,7 +66,6 @@ const addTempData = async (sensorId: string, temp: number, hum: number) => {
         return { success: false, error: "Fehler beim Speichern in Firebase" };
     }
 };
-
 
 
 app.post('/api/temperatureData', async (req: express.Request, res: express.Response) => {

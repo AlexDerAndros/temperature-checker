@@ -10,7 +10,7 @@ import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "rec
 import  Link  from "next/link";
 // Database and Authentification
 import {db} from './config/firebaseClient';
-import { onSnapshot, collection } from "firebase/firestore";
+import { onSnapshot, collection, query, where} from "firebase/firestore";
 import { getOwnSensors } from "./backend/getFrontend";
 
 //Components Import
@@ -173,9 +173,19 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
     setMounted(true);
   }, []);
 
-  // Temperatur-Daten in Echtzeit über Firestore Snapshot laden
   useEffect(() => {
-    const getTemperatures = onSnapshot(collection(db, 'temperatures'), (snapshot) => {
+    // Warten, bis der User geladen ist, bevor die Abfrage startet
+    if (!user) return;
+
+    // Query mit Filter auf den eingeloggten User erstellen
+    // (Je nachdem, ob 'user' ein Objekt mit .email ist oder direkt die E-Mail: user?.email oder user)
+    const q = query(
+      collection(db, 'temperatures'),
+      where("user", "==", user?.email) // Falls 'user' direkt ein String ist, hier nur 'user' nutzen
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      // 1. Daten auslesen
       const datas = snapshot.docs.map(doc => {
         const data = doc.data();
         const rawDate = new Date(data.timestamp || Date.now());
@@ -189,15 +199,20 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
       });
 
       if (datas.length > 0) {
-        datas.sort((a, b) => a.timestamp - b.timestamp);
+        // 2. Sortieren, damit das neueste Element ganz hinten steht
+        datas.sort((a:any, b:any) => a.timestamp - b.timestamp);
+
+        // 3. Den neuesten Eintrag greifen (letzter Index im sortierten Array)
         const newestEntry = datas[datas.length - 1];
 
-        const timePast = newestEntry.timestamp;
-        const timeNow = Date.now();
+        // 4. Differenz fehlerfrei berechnen
+        const timePast = newestEntry.timestamp; 
+        const timeNow = Date.now(); 
         
-        const diffMs = timeNow - timePast;
-        const difInMin = Math.floor(diffMs / 1000 / 60);
+        const difference = timeNow - timePast;
+        const difInMin = Math.floor(difference / 1000 / 60);
 
+        // 5. States setzen
         if (difInMin >= 0) {
           if (difInMin >= 1440) {
             const newNumber = Math.floor(difInMin / 60 / 24);
@@ -212,17 +227,20 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
             setTypeDifference(difInMin === 1 ? "Minute" : "Minuten");
           }
         }
+      } else {
+        setDifference(0);
+        setTypeDifference("");
       }
 
-      setTemperatures(datas);
       setLoading(false);
-    }, (error) => {
+      setTemperatures(datas);
+    }, (error:any) => {
       console.error("Fehler beim Laden der Temperaturen:", error);
       setLoading(false);
     });
 
-    return () => getTemperatures();
-  }, []);
+    return () => unsubscribe();
+  }, [user]);
 
   // Sensoren des Users laden
   useEffect(() => {
@@ -262,15 +280,25 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
         </h2>
         <p className="text-sm text-secondary mt-1">Echtzeit-Daten und Sensorstatus im Überblick</p>
       </div>
-
+      
       {/* Haupt-Container */}
       <main className="w-full max-w-5xl flex flex-col gap-6 items-center">
         
-        {/* Ladezustand oder Haupt-Card mit Diagramm */}
+        {/* Ladezustand, Leerzustand oder Haupt-Card mit Diagramm */}
         {loading === true ? (
           <div className={`w-full h-96 flex flex-col items-center justify-center gap-3 rounded-3xl ${container} border border-secondary/10 shadow-sm`}>
             <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
             <p className="text-secondary text-sm animate-pulse">Lade Status und Messwerte...</p>
+          </div>
+        ) : temperatures.length === 0 ? (
+          <div className={`w-full h-96 flex flex-col items-center justify-center gap-3 rounded-3xl ${container} border border-secondary/10 shadow-sm p-6 text-center`}>
+            <div className="p-3.5 rounded-2xl bg-indigo-500/10 text-indigo-500 mb-1">
+              <Activity size={28} />
+            </div>
+            <h3 className="font-bold text-lg">Keine Temperaturdaten vorhanden</h3>
+            <p className="text-secondary text-sm max-w-sm">
+              Aktuell liegen keine Messwerte für diesen Sensor vor. Sobald Daten eintreffen, erscheint hier das Live-Diagramm.
+            </p>
           </div>
         ) : (
           <Link 
@@ -311,24 +339,24 @@ export function HomeLandingPage({ container, hover, transition }: HomepageProps)
                     tickLine={false}
                     domain={['auto', 'auto']}
                   />
-               <Tooltip 
-    labelFormatter={(value, items) => {
-        const item = items[0]?.payload;
-        return item ? `Zeitpunkt: ${item.datePlusTime}` : value;
-    }}
-    formatter={(value: any) => [`${value} °C`, "Temperatur"]}
-    contentStyle={{ 
-        backgroundColor: "var(--color-container)", 
-        borderRadius: "1rem", 
-        border: "1px solid rgba(107, 114, 128, 0.2)",
-        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-        color: "var(--color-primary)"
-    }}
-    itemStyle={{
-        color: "var(--color-primary)",
-        fontWeight: "600"
-    }}
-/>
+                  <Tooltip 
+                    labelFormatter={(value, items) => {
+                        const item = items[0]?.payload;
+                        return item ? `Zeitpunkt: ${item.datePlusTime}` : value;
+                    }}
+                    formatter={(value: any) => [`${value} °C`, "Temperatur"]}
+                    contentStyle={{ 
+                        backgroundColor: "var(--color-container)", 
+                        borderRadius: "1rem", 
+                        border: "1px solid rgba(107, 114, 128, 0.2)",
+                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                        color: "var(--color-primary)"
+                    }}
+                    itemStyle={{
+                        color: "var(--color-primary)",
+                        fontWeight: "600"
+                    }}
+                  />
                   <Line 
                     type="monotone" 
                     dataKey="temperature" 
