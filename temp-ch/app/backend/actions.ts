@@ -106,3 +106,59 @@ export const updateSettings = async (email: string, highTemp: string | number, l
     return { success: false, error: e };
   }
 };
+
+
+//Aktualisieren und Hinzufügen eines Raumes
+export const setRoom = async (name: string, user: string, sensors: number, warnings: number) => {
+    try {
+        if ( !name.trim() || !user || !user.trim()) {
+            return { success: false, error: "Raumname und User dürfen nicht leer sein." };
+        }
+
+        const trimmedName = name.trim();
+        const roomRef = dbAdmin.collection("rooms").doc(trimmedName);
+        const docSnap = await roomRef.get();
+
+        if (!docSnap.exists) {
+            console.log(`Erstelle neuen Raum: ${trimmedName}`);
+        } else {
+            console.log(`Raum ${trimmedName} existiert bereits – wird aktualisiert (Update).`);
+        }
+        await roomRef.set({
+            name: trimmedName,
+            user: user.trim(),
+            sensors: Number(sensors) || 0,
+            warnings: Number(warnings) || 0,
+        }, { merge: true });
+
+        return { success: true };
+
+    } catch (e) {
+        console.error("Fehler beim Speichern/Aktualisieren des Raumes:", e);
+        return { success: false, error: "Datenbankfehler beim Speichern des Raumes" };
+    }
+};
+//Raum löschen
+export const deleteRoom = async (name: string) => {
+  try {
+    
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return { success: false, error: "Ungültiger Raumname." };
+    }    
+    const roomRef = dbAdmin.collection("rooms").doc(trimmedName);
+    const docSnap = await roomRef.get();
+
+    if (!docSnap.exists) {
+      return { success: false, error: "Dokument existiert nicht mehr." };
+    } 
+
+    await roomRef.delete();
+    return { success: true };
+
+  } catch (e) {
+    console.error("Fehler beim Löschen des Raumes:", e);
+    return { success: false, error: e };
+  }
+};
+

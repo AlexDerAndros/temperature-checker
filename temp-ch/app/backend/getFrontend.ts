@@ -64,3 +64,39 @@ export const getSettings = async (email: string) => {
         return { success: false, error: e };
     }
 };
+
+// 1. Nur die Räume des eingeloggten Users abrufen
+export const getOwnRooms = async (email: string) => {
+    try {
+        const snapshot = await dbAdmin.collection("rooms")
+            .where("user", "==", email)
+            .get();
+
+        const ownRooms = snapshot.docs.map(doc => ({
+            id: doc.id, 
+            ...doc.data()
+        }));
+
+        return { success: true, ownRooms };
+    } catch (e) {
+        console.error("Fehler beim Abrufen der eigenen Räume:", e);
+        return { success: false, error: "Datenbankfehler", ownRooms: [] };
+    }
+};
+
+// 2. Alle Räume abrufen (für Admins in der Admin-Übersicht)
+export const getAllRooms = async () => {
+    try {
+        const snapshot = await dbAdmin.collection("rooms").get();
+
+        const allRooms = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        return { success: true, allRooms };
+    } catch (e) {
+        console.error("Fehler beim Abrufen aller Räume:", e);
+        return { success: false, error: "Datenbankfehler", allRooms: [] };
+    }
+};
