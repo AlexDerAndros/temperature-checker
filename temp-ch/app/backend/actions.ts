@@ -129,6 +129,7 @@ export const setRoom = async (name: string, user: string, sensors: number, warni
             user: user.trim(),
             sensors: Number(sensors) || 0,
             warnings: Number(warnings) || 0,
+            updatedAt: new Date().toISOString()
         }, { merge: true });
 
         return { success: true };
