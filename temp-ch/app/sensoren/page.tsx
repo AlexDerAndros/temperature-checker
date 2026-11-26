@@ -1,15 +1,15 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react";
-import { X, Cpu, Trash2 } from 'lucide-react';
+import { X, Cpu, Trash2, Home } from 'lucide-react';
 import Link from "next/link";
 import gsap from "gsap";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useDarkLight } from "@/contexts/DarkLightContext";
 
-import { getRole, getOwnSensors, getAllSensors } from "@/backend/getFrontend"; 
-import { addSensor, deleteSensor } from "@/backend/actions";
+import { getRole, getOwnSensors, getAllSensors, getAllRooms } from "@/backend/getFrontend"; 
+import { addSensor, deleteSensor, setRoom } from "@/backend/actions";
 import { BackButton, Input } from "@/components/Components";
 
 const iconStyle = "h-10 w-10 flex items-center justify-center p-2 cursor-pointer rounded-full transition hover:bg-containerHover hover:text-secondary text-3xl";
@@ -22,7 +22,7 @@ export default function Sensors() {
     const [isAdminForm, setIsAdminForm] = useState(false);
     
     // States für das Sensor-Formular
-    const [room, setRoom] = useState('');
+    const [roomInput, setRoomInput] = useState('');
     const [sensorId, setSensorId] = useState('');
     const [email, setEmail] = useState('');
     const [formLoading, setFormLoading] = useState(false);
@@ -30,7 +30,8 @@ export default function Sensors() {
 
     const [ownSensors, setOwnSensors] = useState<any[]>([]);
     const [allSensors, setAllSensors] = useState<any[]>([]);
-    
+    const [errorUp, setErrorUp] = useState<string | null>(null);
+
     // View-Modus für Admins ("mine" oder "all")
     const [viewMode, setViewMode] = useState<'mine' | 'all'>('mine');
 
@@ -39,6 +40,9 @@ export default function Sensors() {
     const listRef = useRef<HTMLDivElement>(null);
     const sensorRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
     const touchStartX = useRef<number>(0);
+
+    // Räume State für das Select-Dropdown
+    const [rooms, setRooms] = useState<any[]>([]);
 
     const pressAdminForm = () => {
         setIsAdminForm(!isAdminForm);
@@ -54,8 +58,20 @@ export default function Sensors() {
             );
         }
     }, [isAdminForm]);
-    
-    // Daten laden
+
+   
+    const fetchRooms = async () => {
+        try {
+            const result = await getAllRooms();
+            if (result.success && result.allRooms) {
+                setRooms(result.allRooms);
+              
+            }
+        } catch (e) {
+            console.error("Fehler beim Laden der Räume:", e);
+        }
+    };
+
     const initData = async () => {
         if (user && user.email) {
             try {
@@ -67,6 +83,9 @@ export default function Sensors() {
                 }
                 const ownRes = await getOwnSensors(user.email);
                 if (ownRes.success) setOwnSensors(ownRes.ownSensors);
+                
+                // Räume laden für das Zuweisungs-Dropdown
+                await fetchRooms();
             } catch (error) {
                 console.error("Fehler beim Laden:", error);
             } finally {
@@ -120,25 +139,39 @@ export default function Sensors() {
         }
     };
 
-    const handleSubmitSensor = async (e: React.FormEvent) => {
+ const handleSubmitSensor = async (e: React.FormEvent) => {
         e.preventDefault();
         setFormLoading(true);
         setMessage('');
 
         try {
-            const result = await addSensor(room, sensorId, email);
+            // 1. Sensor hinzufügen
+            const result = await addSensor(roomInput, sensorId, email);
             if (result?.success) {
-                setMessage('Sensor erfolgreich hinzugefügt!');
-                setRoom('');
+                
+                
+                const updatedSensorsList = allSensors.filter(s => s.room === roomInput);
+                const newSensorCount = updatedSensorsList.length + 1;
+
+               
+                const targetRoom = rooms.find((r: any) => (r.name || r.id) === roomInput);
+                const existingRoomUser = targetRoom ? targetRoom.user : email; 
+
+              
+                await setRoom(roomInput, existingRoomUser, newSensorCount, 0);
+
+                setMessage('Sensor erfolgreich hinzugefügt und Raum aktualisiert!');
                 setSensorId('');
                 setEmail('');
                 
+               
                 const ownRes = await getOwnSensors(user?.email!);
                 if (ownRes.success) setOwnSensors(ownRes.ownSensors);
                 if (isAdmin) {
                     const allRes = await getAllSensors();
                     if (allRes.success) setAllSensors(allRes.allSensors);
                 }
+
                 setTimeout(() => {
                     setIsAdminForm(false);
                     setMessage('');
@@ -155,39 +188,38 @@ export default function Sensors() {
     };
     
     // GSAP Fly-Away Lösch-Animation
-    const handleDeleteSensor = async (sensorId: string) => {
-    const cardElement = sensorRefs.current[sensorId];
+    const handleDeleteSensor = async (sensorIdKey: string) => {
+        const cardElement = sensorRefs.current[sensorIdKey];
 
-    if (cardElement) {
-        // GSAP Animation: Fliegt nach rechts weg und schrumpft aus
-        gsap.to(cardElement, {
-            x: 100,
-            opacity: 0,
-            scale: 0.9,
-            duration: 0.3,
-            ease: "power2.in",
-            onComplete: () => {
-                // Async-Logik hier kapseln, damit onComplete kein Promise zurückgibt
-                (async () => {
-                    try {
-                        const result = await deleteSensor(sensorId);
-                        if (result?.success) {
-                            initData(); // Daten frisch laden
+        if (cardElement) {
+            gsap.to(cardElement, {
+                x: 100,
+                opacity: 0,
+                scale: 0.9,
+                duration: 0.3,
+                ease: "power2.in",
+                onComplete: () => {
+                    (async () => {
+                        try {
+                            const result = await deleteSensor(sensorIdKey);
+                            if (result?.success) {
+                                initData();
+                            }
+                        } catch (e) {
+                            console.error(e);
                         }
-                    } catch (e) {
-                        console.error(e);
-                    }
-                })();
-            }
-        });
-    } else {
-        // Fallback falls Ref nicht greift
-        const result = await deleteSensor(sensorId);
-        if (result?.success) initData();
-    }
-};
+                    })();
+                }
+            });
+        } else {
+            const result = await deleteSensor(sensorIdKey);
+            if (result?.success) initData();
+        }
+    };
 
+    //Update Room 
     
+
     const displayedSensors = isAdmin && viewMode === 'all' ? allSensors : ownSensors;
     
     return (
@@ -205,7 +237,7 @@ export default function Sensors() {
 
                 <div className="w-28 flex justify-end">
                     {isAdmin ? (
-                        <span className={iconStyle} onClick={pressAdminForm}>+</span>
+                        <span className={iconStyle} onClick={pressAdminForm} title="Sensor hinzufügen">+</span>
                     ) : (
                         <div className="w-10"></div>
                     )}
@@ -241,19 +273,42 @@ export default function Sensors() {
                         className={`w-full max-w-lg p-6 ${container} rounded-2xl flex flex-col justify-between shadow-2xl border border-gray-700 my-auto`}
                     >
                         <header className="w-full flex flex-row justify-between items-center mb-4">
-                            <h3 className="font-bold text-lg">Neuen Sensor hinzufügen</h3>
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                <Cpu className="w-5 h-5 text-emerald-500" />
+                                Neuen Sensor zuordnen
+                            </h3>
                             <X className={iconStyle} onClick={pressAdminForm} />
                         </header>
 
                         <section className="w-full flex flex-col gap-4 my-2">
+                            {/* Raum Auswahl via <select> / <option> */}
                             <div>
-                                <label className="block text-sm mb-1 font-medium">Raum</label>
-                                <Input type="text" value={room} setValue={setRoom} addStyle="w-full h-10 px-3 border border-gray-500 rounded-lg" />
+                                <label className="block text-sm mb-1 font-medium flex items-center gap-1.5">
+                                    <Home className="w-4 h-4 text-emerald-500" /> Raum auswählen
+                                </label>
+                                <select 
+                                    value={roomInput} 
+                                    onChange={(e) => setRoomInput(e.target.value)}
+                                    className="w-full h-10 px-3 border border-gray-500 rounded-lg bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    required
+                                >
+                                    <option value="" disabled>-- Bitte Raum wählen --</option>
+                                    {rooms.map((r) => {
+                                        const roomName = r.name || r.id;
+                                        return (
+                                            <option key={r.id || r.name} value={roomName} className="bg-white dark:bg-gray-900 text-black dark:text-white">
+                                                {roomName}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
                             </div>
+
                             <div>
                                 <label className="block text-sm mb-1 font-medium">Sensor ID (MAC / Controller)</label>
                                 <Input type="text" value={sensorId} setValue={setSensorId} addStyle="w-full h-10 px-3 border border-gray-500 rounded-lg" />
                             </div>
+                            
                             <div>
                                 <label className="block text-sm mb-1 font-medium">User E-Mail</label>
                                 <Input type="text" value={email} setValue={setEmail} addStyle="w-full h-10 px-3 border border-gray-500 rounded-lg" />
@@ -319,16 +374,16 @@ export default function Sensors() {
                                                     {sensor.active ? 'Aktiv' : 'Inaktiv'}
                                                 </span>
                                                 
-                                                {/* Schöneres Mülleimer-Design mit Hover-Effekt */}
-                                               {isAdmin &&(
-                                                <button 
-                                                    type="button"
-                                                    onClick={() => handleDeleteSensor(sensor.sensorId)} 
-                                                    className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                                                    title="Sensor löschen"
-                                                >
-                                                    <Trash2 className="w-5 h-5" />
-                                                </button>
+                                                {/* Mülleimer-Design zum Löschen */}
+                                                {isAdmin && (
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => handleDeleteSensor(sensor.sensorId)} 
+                                                        className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                                                        title="Sensor löschen"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
                                                 )} 
                                             </aside> 
                                         </div>

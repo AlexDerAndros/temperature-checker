@@ -28,7 +28,6 @@ export default function Header() {
   // Rooms Data & Error States (explizit als string | null typisiert)
   const [rooms, setRooms] = useState<any[]>([]);
   const [name, setName] = useState("");
-  const [click, setClick] = useState(false);
   const [errorGet, setErrorGet] = useState<string | null>(null);
   const [errorAdd, setErrorAdd] = useState<string | null>(null);
   const [errorDel, setErrorDel] = useState<string | null>(null);
@@ -146,30 +145,32 @@ export default function Header() {
     }
   };
 
-  // Add Room with Error Handling
   const addRoom = async () => {
-    setErrorAdd(null);
-    if (!name.trim()) {
-      setErrorAdd("Bitte gib einen Raumnamen ein.");
-      return;
-    }
+  setErrorAdd(null);
+  
+ 
+  const trimmedName = name.trim(); 
 
-    try {
-      if (user && user.email) {
-        const result = await setRoom(name.trim(), user.email, 0, 0);
-        if (result.success) {
-          setName("");
-          setErrorAdd(null);
-          getOwnRooms();
-        } else {
-          setErrorAdd(typeof result.error === "string" ? result.error : "Fehler beim Hinzufügen.");
-        }
-      }  
-    } catch (e) {
-      setErrorAdd(e instanceof Error ? e.message : String(e));
-    }
-  };
+  if (!trimmedName) {
+    setErrorAdd("Bitte gib einen Raumnamen ein.");
+    return;
+  }
 
+  try {
+    if (user && user.email) {
+      const result = await setRoom(trimmedName, user.email, 0, 0);
+      if (result.success) {
+        setName("");
+        setErrorAdd(null);
+        getOwnRooms();
+      } else {
+        setErrorAdd(typeof result.error === "string" ? result.error : "Fehler beim Hinzufügen.");
+      }
+    }  
+  } catch (e) {
+    setErrorAdd(e instanceof Error ? e.message : String(e));
+  }
+};
   // Delete Room with Error Handling
   const deleteRoom = async (roomName: string) => {
     setErrorDel(null);
@@ -219,7 +220,7 @@ export default function Header() {
                 setRoomsTab(true);
               }
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition bg-containerHover hover:opacity-80 border border-gray-200 dark:border-gray-800 cursor-pointer shadow-sm"
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm  ${container} ${containerHover}  border  border-gray-200 dark:border-gray-800 cursor-pointer shadow-sm`}
             aria-label="Räume verwalten"
           >
             <Home size={16} className="text-indigo-500" />
@@ -232,7 +233,7 @@ export default function Header() {
           {roomsTab && (
             <div 
               ref={roomsMenuRef}
-              className={`absolute left-1/2 -translate-x-1/2 top-12 w-80 p-4 rounded-2xl ${container} shadow-2xl border border-gray-200 dark:border-gray-800 z-50 flex flex-col gap-3`}
+              className={`absolute left-3/10 md:left-1/2 -translate-x-1/2 top-12 w-80 p-4 rounded-2xl ${container} shadow-2xl border border-gray-200 dark:border-gray-800 z-50 flex flex-col gap-3 shadow-lg`}
             >
               {/* Header */}
               <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-gray-700">
@@ -295,7 +296,7 @@ export default function Header() {
                       className={`flex items-center justify-between px-3 py-2.5 rounded-xl ${containerHover} transition text-sm font-medium group`}
                     >
                       <Link 
-                        href={`/${room.name}/uebersicht`}
+                        href={`/${room.name.replace(/\s+/g, '-')}/uebersicht`}
                         onClick={() => animateCloseRooms()}
                         className="truncate flex-grow hover:text-indigo-500 transition"
                       >
